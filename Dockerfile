@@ -6,9 +6,10 @@ RUN apt-get update && \
     apt-get install -y --no-install-recommends curl ca-certificates && \
     rm -rf /var/lib/apt/lists/*
 
+
 # Fetch logchecker.phar from GitHub releases
 RUN curl -fSL -o /tmp/logchecker \
-    "https://github.com/Nirzak/logchecker-fork/releases/latest/download/logchecker.phar" && \
+    "https://github.com/Nirzak/logchecker-go/releases/latest/download/logchecker-linux-arm64" && \
     chmod +x /tmp/logchecker
 
 FROM python:3.12-slim
@@ -17,7 +18,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 # Install PHP CLI (required to run logchecker.phar)
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends php-cli gosu && \
+    apt-get install -y --no-install-recommends gosu && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
