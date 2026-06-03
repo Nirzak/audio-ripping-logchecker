@@ -1,0 +1,12 @@
+github.com/Nirzak/eac-logchecker v1.0.0 h1:SDvRF1UEi4vD4dhxT4BDGbag1TAKw9vjumC5mQFaPMA=
+github.com/Nirzak/eac-logchecker v1.0.0/go.mod h1:GB7RS2OUejNf9dEA1UkUGlokdKdYTuJaSC4KAVoJS5k=
+github.com/Nirzak/logchecker-go v1.14.5 h1:uc78FAqYYa9i1ieS4wdoCsThESRP3pJbgwbtoYtKl0c=
+github.com/Nirzak/logchecker-go v1.14.5/go.mod h1:gDL4bYB9zT8Vzth/9XiJcOG6hAFDL87zmY2tc1v6eYs=
+github.com/Nirzak/xld-logchecker v1.0.0 h1:/WpnN2/7eWglXaSNsSMu9OPRgyssHjINWVRhvfPX0p0=
+github.com/Nirzak/xld-logchecker v1.0.0/go.mod h1:ESqpyEWU+Y18C+ZveC8F8KacHzM9UT6DaIjRrBGkrzs=
+golang.org/x/text v0.37.0 h1:Cqjiwd9eSg8e0QAkyCaQTNHFIIzWtidPahFWR83rTrc=
+golang.org/x/text v0.37.0/go.mod h1:a5sjxXGs9hsn/AJVwuElvCAo9v8QYLzvavO5z2PiM38=
+gopkg.in/check.v1 v0.0.0-20161208181325-20d25e280405 h1:yhCVgyC4o1eVCa2tZl7eS0r+SDo693bJlVdllGtEeKM=
+gopkg.in/check.v1 v0.0.0-20161208181325-20d25e280405/go.mod h1:Co6ibVJAznAaIkqp8huTwlJQCZ016jof/cbN4VW5Yz0=
+gopkg.in/yaml.v3 v3.0.1 h1:fxVm/GzAzEWqLHuvctI91KS9hhNmmWOoWu0XTYJS7CA=
+gopkg.in/yaml.v3 v3.0.1/go.mod h1:K4uyk7z7BCEPqu6E+C64Yfv1cQ7kz7rIZviUmN+EgEM=

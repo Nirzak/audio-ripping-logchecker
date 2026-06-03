@@ -1,4 +1,0 @@
-flask
-flask-limiter[redis]
-bleach
-gunicorn
