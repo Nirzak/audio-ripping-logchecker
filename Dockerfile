@@ -7,7 +7,7 @@ COPY go.mod go.sum ./
 RUN go mod download
 
 # Copy source
-COPY main.go .
+COPY *.go .
 
 RUN CGO_ENABLED=0 GOOS=linux go build -trimpath -ldflags="-s -w" -o logchecker-web .
 
