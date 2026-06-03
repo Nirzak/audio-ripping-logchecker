@@ -3,3 +3,5 @@
 .dockerignore
 README.md
 *.scss
+*.md
+logs/

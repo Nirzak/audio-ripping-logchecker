@@ -12,7 +12,7 @@
   <link
     href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
     rel="stylesheet">
-  <link rel="stylesheet" href="{{ subpath }}/main.css">
+  <link rel="stylesheet" href="{{ .Subpath }}/main.css">
 </head>
 
 <body>
@@ -49,11 +49,11 @@
       </div>
       <h1 class="app-title">Audio Ripping Logchecker</h1>
       <p class="app-subtitle">Verify audio rip log integrity and accuracy<br><span
-          style="font-size: 0.85em; opacity: 0.8;">(Supported Logs: EAC, XLD, dBpoweramp & Whipper)</span></p>
+          style="font-size: 0.85em; opacity: 0.8;">(Supported Logs: EAC, XLD, dBpoweramp &amp; Whipper)</span></p>
     </header>
 
     <!-- Error Alert -->
-    {% if error %}
+    {{if .Error}}
     <div class="alert-error animate-in" role="alert" id="error-alert">
       <svg class="alert-error-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
         stroke-linecap="round" stroke-linejoin="round">
@@ -61,9 +61,9 @@
         <line x1="15" y1="9" x2="9" y2="15"></line>
         <line x1="9" y1="9" x2="15" y2="15"></line>
       </svg>
-      <span class="alert-error-text">{{ error }}</span>
+      <span class="alert-error-text">{{.Error}}</span>
     </div>
-    {% endif %}
+    {{end}}
 
     <!-- Upload Card -->
     <div class="card animate-in">
@@ -77,7 +77,7 @@
               <polyline points="17 8 12 3 7 8"></polyline>
               <line x1="12" y1="3" x2="12" y2="15"></line>
             </svg>
-            <p class="drop-text"><strong>Click to browse</strong> or drag & drop</p>
+            <p class="drop-text"><strong>Click to browse</strong> or drag &amp; drop</p>
             <p class="drop-hint">Supports .log and .txt files — 200 KB max</p>
             <input type="file" id="logfile" name="logfile" accept=".log,.txt" required>
           </div>
@@ -97,32 +97,32 @@
     </div>
 
     <!-- Results: Summary -->
-    {% if details %}
+    {{if .Summary}}
     <div class="card animate-in">
       <div class="section-title">Summary</div>
       <div class="summary-grid" id="summary-grid">
-        {% for key, value in details.items() if key != 'details' %}
-        <div class="summary-item" data-key="{{ key }}">
-          <span class="summary-key">{{ key.replace('_', ' ').capitalize() }}</span>
-          <span class="summary-value">{{ value }}</span>
+        {{range .Summary}}
+        <div class="summary-item" data-key="{{.Key}}">
+          <span class="summary-key">{{capitalize .Key}}</span>
+          <span class="summary-value">{{.Value}}</span>
         </div>
-        {% endfor %}
+        {{end}}
       </div>
     </div>
 
     <!-- Results: Details -->
-    {% if details.details and details.details|length > 0 %}
+    {{if .Details}}
     <div class="card animate-in">
       <div class="section-title">Details</div>
-      {% for detail in details.details %}
-      <div class="detail-item">{{ detail }}</div>
-      {% endfor %}
+      {{range .Details}}
+      <div class="detail-item">{{.}}</div>
+      {{end}}
     </div>
-    {% endif %}
-    {% endif %}
+    {{end}}
+    {{end}}
 
     <!-- Results: Log Output -->
-    {% if result_id %}
+    {{if .ResultID}}
     <div class="card animate-in">
       <div class="section-title">Log Output</div>
       <div class="log-output-wrapper">
@@ -135,8 +135,8 @@
             <line x1="3" y1="21" x2="10" y2="14"></line>
           </svg>
         </button>
-        <div class="log-output-container" id="output-container" data-result-id="{{ result_id }}"
-          data-subpath="{{ subpath }}">
+        <div class="log-output-container" id="output-container" data-result-id="{{.ResultID}}"
+          data-subpath="{{.Subpath}}">
           <span class="loading-pulse">Loading analysis results…</span>
         </div>
       </div>
@@ -157,11 +157,11 @@
       </div>
       <div class="log-modal-body" id="log-modal-body"></div>
     </div>
-    {% endif %}
+    {{end}}
 
   </div>
 
-  <script src="{{ subpath }}/main.js"></script>
+  <script src="{{ .Subpath }}/main.js"></script>
 
 </body>
 

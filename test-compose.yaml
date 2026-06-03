@@ -7,8 +7,9 @@ services:
       - PUID=1002
       - PGID=1002
       - SUBPATH=/logchecker-test
-      - LOG_LEVEL=info
-      - RATE_LIMIT=1000 per minute
+      - LOG_LEVEL=debug
+      - RATE_LIMIT_RPS=16
+      - RATE_LIMIT_BURST=10
     ports:
       - "5051:5050"
     volumes:
