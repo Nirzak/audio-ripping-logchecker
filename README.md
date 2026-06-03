@@ -2,7 +2,7 @@
 
 A web UI to check EAC, XLD, dBpoweramp, and Whipper audio ripping logs and view the report online.
 
-Built in Go using [logchecker-go](https://github.com/Nirzak/logchecker-go) natively — no external binary or subprocess required.
+Built in Go using [logchecker-go](https://github.com/Nirzak/logchecker-go) natively.
 
 ## Run with Docker Compose (Recommended)
 
@@ -14,14 +14,15 @@ The web app will be available at `http://localhost:5050`.
 
 ### Environment Variables
 
-| Variable     | Default          | Description                                        |
-|--------------|------------------|----------------------------------------------------|
-| `PUID`       | `1000`           | User ID to run the process as                      |
-| `PGID`       | `1000`           | Group ID to run the process as                     |
-| `SUBPATH`    | *(empty)*        | URL sub-path prefix, e.g. `/logchecker`            |
-| `LOG_LEVEL`  | `error`          | Log verbosity: `debug`, `info`, `warning`, `error` |
-| `RATE_LIMIT` | `30 per minute`  | Per-IP rate limit, e.g. `100 per minute`           |
-| `PORT`       | `5050`           | Port the server listens on                         |
+| Variable           | Default     | Description                                        |
+|--------------------|-------------|----------------------------------------------------|
+| `PUID`             | `1000`      | User ID to run the process as                      |
+| `PGID`             | `1000`      | Group ID to run the process as                     |
+| `SUBPATH`          | *(empty)*   | URL sub-path prefix, e.g. `/logchecker`            |
+| `LOG_LEVEL`        | `error`     | Log verbosity: `debug`, `info`, `warn`, `error`    |
+| `RATE_LIMIT_RPS`   | `0.5`       | Allowed requests per second per IP (0.5 = 30/min)  |
+| `RATE_LIMIT_BURST` | `10`        | Maximum burst size for rate limiting               |
+| `PORT`             | `5050`      | Port the server listens on                         |
 
 ## API Endpoint
 
@@ -48,7 +49,7 @@ curl -X POST http://localhost:5050/api -F "logfile=@my_log.log"
 
 ### Requirements
 
-* Go 1.21+
+* Go 1.25+
 
 ### Build & Run
 
