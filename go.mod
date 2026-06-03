@@ -1,6 +1,6 @@
 module github.com/Nirzak/audio-ripping-logchecker
 
-go 1.26.3
+go 1.25.0
 
 require github.com/Nirzak/logchecker-go v1.14.5
 
