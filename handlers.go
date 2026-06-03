@@ -66,20 +66,10 @@ func utf16Decode(b []byte, bigEndian bool) string {
 	}
 	runes := make([]rune, 0, len(b)/2)
 	for i := 0; i+1 < len(b); i += 2 {
-		var u uint16
-		if bigEndian {
-			u = uint16(b[i])<<8 | uint16(b[i+1])
-		} else {
-			u = uint16(b[i]) | uint16(b[i+1])<<8
-		}
+		u := readUTF16Unit(b, i, bigEndian)
 		// Handle surrogate pairs (U+D800–U+DFFF)
 		if u >= 0xD800 && u <= 0xDBFF && i+3 < len(b) {
-			var lo uint16
-			if bigEndian {
-				lo = uint16(b[i+2])<<8 | uint16(b[i+3])
-			} else {
-				lo = uint16(b[i+2]) | uint16(b[i+3])<<8
-			}
+			lo := readUTF16Unit(b, i+2, bigEndian)
 			if lo >= 0xDC00 && lo <= 0xDFFF {
 				runes = append(runes, rune(u-0xD800)<<10|rune(lo-0xDC00)+0x10000)
 				i += 2
@@ -89,6 +79,14 @@ func utf16Decode(b []byte, bigEndian bool) string {
 		runes = append(runes, rune(u))
 	}
 	return string(runes)
+}
+
+// readUTF16Unit reads one UTF-16 code unit from b at offset i.
+func readUTF16Unit(b []byte, i int, bigEndian bool) uint16 {
+	if bigEndian {
+		return uint16(b[i])<<8 | uint16(b[i+1])
+	}
+	return uint16(b[i]) | uint16(b[i+1])<<8
 }
 
 // ---------------------------------------------------------------------------
