@@ -1,4 +1,4 @@
-FROM golang:1.24-alpine AS builder
+FROM golang:1.26.4-alpine AS builder
 
 WORKDIR /build
 
@@ -16,7 +16,7 @@ FROM alpine:3.21
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-RUN apk add --no-cache gosu shadow
+RUN apk add --no-cache su-exec shadow
 
 WORKDIR /app
 

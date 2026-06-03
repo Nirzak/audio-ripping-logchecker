@@ -15,4 +15,4 @@ usermod -o -u "$PUID" appuser
 chown -R appuser:appuser /app /app/logs
 
 # Run the application as appuser
-exec gosu appuser "$@"
+exec su-exec appuser "$@"
