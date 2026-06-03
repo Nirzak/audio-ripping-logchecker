@@ -41,6 +41,56 @@ func isRdbarr(content string) bool {
 		reRdbarrFilename.MatchString(content)
 }
 
+// decodeToUTF8 converts raw log bytes to a UTF-8 string suitable for pattern
+// matching. EAC logs are commonly saved as UTF-16 LE with a BOM (0xFF 0xFE);
+// without decoding, ASCII substring searches fail because every character is
+// interleaved with a null byte.
+func decodeToUTF8(raw []byte) string {
+	if len(raw) < 2 {
+		return string(raw)
+	}
+	switch {
+	case raw[0] == 0xff && raw[1] == 0xfe: // UTF-16 LE BOM
+		return utf16Decode(raw[2:], false)
+	case raw[0] == 0xfe && raw[1] == 0xff: // UTF-16 BE BOM
+		return utf16Decode(raw[2:], true)
+	}
+	return string(raw)
+}
+
+// utf16Decode converts a BOM-stripped UTF-16 byte slice to a UTF-8 string.
+// bigEndian selects byte order; surrogate pairs are handled correctly.
+func utf16Decode(b []byte, bigEndian bool) string {
+	if len(b)%2 != 0 {
+		b = b[:len(b)-1]
+	}
+	runes := make([]rune, 0, len(b)/2)
+	for i := 0; i+1 < len(b); i += 2 {
+		var u uint16
+		if bigEndian {
+			u = uint16(b[i])<<8 | uint16(b[i+1])
+		} else {
+			u = uint16(b[i]) | uint16(b[i+1])<<8
+		}
+		// Handle surrogate pairs (U+D800–U+DFFF)
+		if u >= 0xD800 && u <= 0xDBFF && i+3 < len(b) {
+			var lo uint16
+			if bigEndian {
+				lo = uint16(b[i+2])<<8 | uint16(b[i+3])
+			} else {
+				lo = uint16(b[i+2]) | uint16(b[i+3])<<8
+			}
+			if lo >= 0xDC00 && lo <= 0xDFFF {
+				runes = append(runes, rune(u-0xD800)<<10|rune(lo-0xDC00)+0x10000)
+				i += 2
+				continue
+			}
+		}
+		runes = append(runes, rune(u))
+	}
+	return string(runes)
+}
+
 // ---------------------------------------------------------------------------
 // Template data types
 // ---------------------------------------------------------------------------
@@ -184,7 +234,7 @@ func (s *server) handleUpload(w http.ResponseWriter, r *http.Request, data *page
 	safeLog := sanitizeForLog(safeName)
 	s.logger.Info("checking file", "ip", ip, "file", safeLog)
 
-	rdbarr := isRdbarr(string(raw))
+	rdbarr := isRdbarr(decodeToUTF8(raw))
 	res, htmlLog, err := analyze(raw, filepath.Ext(safeName), rdbarr)
 	if err != nil {
 		s.logger.Error("analysis failed", "ip", ip, "file", safeLog, "err", err)
@@ -226,7 +276,7 @@ func (s *server) handleAPI(w http.ResponseWriter, r *http.Request) {
 	safeLog := sanitizeForLog(safeName)
 	s.logger.Info("API: checking file", "ip", ip, "file", safeLog)
 
-	rdbarr := isRdbarr(string(raw))
+	rdbarr := isRdbarr(decodeToUTF8(raw))
 	res, _, err := analyze(raw, filepath.Ext(safeName), rdbarr)
 	if err != nil {
 		s.logger.Error("API: analysis failed", "ip", ip, "file", safeLog, "err", err)
