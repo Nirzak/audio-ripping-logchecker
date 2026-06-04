@@ -1,4 +1,4 @@
-document.addEventListener("DOMContentLoaded", function() {
+document.addEventListener("DOMContentLoaded", function () {
 
   /* ---- Theme Toggle ---- */
   const toggle = document.getElementById("theme-toggle");
@@ -11,7 +11,7 @@ document.addEventListener("DOMContentLoaded", function() {
     html.setAttribute("data-theme", "light");
   }
 
-  toggle.addEventListener("click", function() {
+  toggle.addEventListener("click", function () {
     const current = html.getAttribute("data-theme");
     const next = current === "dark" ? "light" : "dark";
     html.setAttribute("data-theme", next);
@@ -24,7 +24,7 @@ document.addEventListener("DOMContentLoaded", function() {
   const fileNameEl = document.getElementById("file-selected-name");
 
   if (fileInput && fileNameEl) {
-    fileInput.addEventListener("change", function() {
+    fileInput.addEventListener("change", function () {
       if (fileInput.files.length > 0) {
         fileNameEl.textContent = "\u{1F4C4} " + fileInput.files[0].name;
         fileNameEl.classList.add("visible");
@@ -36,18 +36,18 @@ document.addEventListener("DOMContentLoaded", function() {
 
   if (dropZone) {
     ["dragenter", "dragover"].forEach(evt => {
-      dropZone.addEventListener(evt, function(e) {
+      dropZone.addEventListener(evt, function (e) {
         e.preventDefault();
         e.stopPropagation();
         dropZone.classList.add("dragover");
       });
     });
-    dropZone.addEventListener("dragleave", function(e) {
+    dropZone.addEventListener("dragleave", function (e) {
       e.preventDefault();
       e.stopPropagation();
       dropZone.classList.remove("dragover");
     });
-    dropZone.addEventListener("drop", function(e) {
+    dropZone.addEventListener("drop", function (e) {
       e.preventDefault();
       e.stopPropagation();
       dropZone.classList.remove("dragover");
@@ -61,6 +61,10 @@ document.addEventListener("DOMContentLoaded", function() {
 
   /* ---- Load Result ---- */
   const outputContainer = document.getElementById("output-container");
+  // resultSrcdoc holds the fetched HTML so the modal can reuse it without
+  // re-fetching and without any innerHTML assignment on the main container.
+  let resultSrcdoc = null;
+
   if (outputContainer) {
     const resultId = outputContainer.getAttribute("data-result-id");
     const rawSubpath = outputContainer.getAttribute("data-subpath") || '';
@@ -70,10 +74,24 @@ document.addEventListener("DOMContentLoaded", function() {
     fetch(resultUrl)
       .then(response => response.text())
       .then(data => {
-        outputContainer.innerHTML = data;
+        resultSrcdoc = data;
+        // Render inside a sandboxed iframe to avoid any innerHTML-based XSS.
+        // allow-same-origin is needed so the iframe can inherit stylesheets
+        // served from the same origin (style.css referenced in the result doc).
+        const frame = document.createElement("iframe");
+        frame.setAttribute("sandbox", "allow-same-origin");
+        frame.setAttribute("title", "Log analysis output");
+        frame.style.cssText = "width:100%;border:none;min-height:400px;background:transparent;display:block;";
+        frame.srcdoc = data;
+        outputContainer.innerHTML = "";
+        outputContainer.appendChild(frame);
       })
-      .catch(error => {
-        outputContainer.innerHTML = '<span style="color:var(--danger-text)">Error loading output. Please try again.</span>';
+      .catch(() => {
+        const errSpan = document.createElement("span");
+        errSpan.style.color = "var(--danger-text)";
+        errSpan.textContent = "Error loading output. Please try again.";
+        outputContainer.innerHTML = "";
+        outputContainer.appendChild(errSpan);
       });
   }
 
@@ -85,8 +103,15 @@ document.addEventListener("DOMContentLoaded", function() {
   const btnModalClose = document.getElementById("btn-modal-close");
 
   function openLogModal() {
-    if (outputContainer && logModalBody) {
-      logModalBody.innerHTML = outputContainer.innerHTML;
+    if (resultSrcdoc && logModalBody) {
+      // Reuse the already-fetched srcdoc — no innerHTML assignment.
+      logModalBody.innerHTML = "";
+      const frame = document.createElement("iframe");
+      frame.setAttribute("sandbox", "allow-same-origin");
+      frame.setAttribute("title", "Log analysis output (expanded)");
+      frame.style.cssText = "width:100%;height:100%;border:none;background:transparent;display:block;";
+      frame.srcdoc = resultSrcdoc;
+      logModalBody.appendChild(frame);
     }
     logModal.classList.add("open");
     logModalBackdrop.classList.add("open");
@@ -108,7 +133,7 @@ document.addEventListener("DOMContentLoaded", function() {
   if (logModalBackdrop) {
     logModalBackdrop.addEventListener("click", closeLogModal);
   }
-  document.addEventListener("keydown", function(e) {
+  document.addEventListener("keydown", function (e) {
     if (e.key === "Escape" && logModal && logModal.classList.contains("open")) {
       closeLogModal();
     }

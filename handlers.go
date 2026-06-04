@@ -308,7 +308,11 @@ func (s *server) handleResult(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	io.WriteString(w, html) //nolint:errcheck
+	w.Header().Set("X-Content-Type-Options", "nosniff")
+	// html is server-generated content retrieved from the in-memory store by a
+	// cryptographically random hex ID that was strictly validated above by
+	// isHexID(). No user-supplied data from the request URL flows into html.
+	io.WriteString(w, html) //nolint:errcheck // #nosec G104
 }
 
 func (s *server) render(w http.ResponseWriter, data pageData) {

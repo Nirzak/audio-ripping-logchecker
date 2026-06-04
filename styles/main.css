@@ -8,9 +8,9 @@
   --radius-md: 12px;
   --radius-lg: 16px;
   --radius-xl: 20px;
-  --shadow-sm: 0 1px 3px rgba(0,0,0,0.12);
-  --shadow-md: 0 4px 16px rgba(0,0,0,0.15);
-  --shadow-lg: 0 8px 32px rgba(0,0,0,0.2);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.12);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.15);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.2);
   --shadow-glow: 0 0 40px rgba(99, 179, 237, 0.15);
   --transition-fast: 0.15s cubic-bezier(0.4, 0, 0.2, 1);
   --transition-base: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
@@ -79,7 +79,9 @@
 /* ============================================
    Base & Reset
    ============================================ */
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
@@ -126,9 +128,11 @@ body::before {
   width: 6px;
   height: 6px;
 }
+
 ::-webkit-scrollbar-track {
   background: var(--scrollbar-track);
 }
+
 ::-webkit-scrollbar-thumb {
   background: var(--scrollbar-thumb);
   border-radius: 3px;
@@ -167,8 +171,15 @@ body::before {
 }
 
 @keyframes logo-float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-4px); }
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-4px);
+  }
 }
 
 .logo-icon svg {
@@ -233,9 +244,18 @@ body::before {
   transform: rotate(30deg);
 }
 
-.theme-icon-sun, .theme-icon-moon { display: none; }
-[data-theme="dark"] .theme-icon-sun { display: block; }
-[data-theme="light"] .theme-icon-moon { display: block; }
+.theme-icon-sun,
+.theme-icon-moon {
+  display: none;
+}
+
+[data-theme="dark"] .theme-icon-sun {
+  display: block;
+}
+
+[data-theme="light"] .theme-icon-moon {
+  display: block;
+}
 
 /* ============================================
    Card Component
@@ -350,8 +370,15 @@ body::before {
 }
 
 @keyframes fade-up {
-  from { opacity: 0; transform: translateY(6px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* ============================================
@@ -673,43 +700,55 @@ body::before {
 
 .log-modal-body {
   flex: 1;
-  overflow: auto;
-  padding: 24px;
-  font-family: var(--font-mono);
-  font-size: 0.85rem;
-  line-height: 1.8;
-  color: var(--text-secondary);
+  overflow: hidden;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
 }
 
-[data-theme="light"] .log-modal-body {
-  color: #1e293b;
-}
-
-/* Light-mode overrides for modal log spans */
-[data-theme="light"] .log-modal-body .log1 { color: #7c3aed; }
-[data-theme="light"] .log-modal-body .log2 { color: #b45309; }
-[data-theme="light"] .log-modal-body .log3 { color: #2563eb; }
-[data-theme="light"] .log-modal-body .log4 { color: #0f172a; }
-[data-theme="light"] .log-modal-body .log5 { color: #334155; }
-[data-theme="light"] .log-modal-body .good { color: #15803d; }
-[data-theme="light"] .log-modal-body .bad { color: #dc2626; }
-[data-theme="light"] .log-modal-body .goodish { color: #16a34a; }
-[data-theme="light"] .log-modal-body .badish { color: #ca8a04; }
+/* Light-mode iframe overrides are handled inside the result document's own
+   style.css, so no extra selectors are needed here for the modal body. */
 
 /* Light-mode overrides for inline log output */
 [data-theme="light"] .log-output-container {
   color: #1e293b;
 }
 
-[data-theme="light"] .log-output-container .log1 { color: #7c3aed; }
-[data-theme="light"] .log-output-container .log2 { color: #b45309; }
-[data-theme="light"] .log-output-container .log3 { color: #2563eb; }
-[data-theme="light"] .log-output-container .log4 { color: #0f172a; }
-[data-theme="light"] .log-output-container .log5 { color: #334155; }
-[data-theme="light"] .log-output-container .good { color: #15803d; }
-[data-theme="light"] .log-output-container .bad { color: #dc2626; }
-[data-theme="light"] .log-output-container .goodish { color: #16a34a; }
-[data-theme="light"] .log-output-container .badish { color: #ca8a04; }
+[data-theme="light"] .log-output-container .log1 {
+  color: #7c3aed;
+}
+
+[data-theme="light"] .log-output-container .log2 {
+  color: #b45309;
+}
+
+[data-theme="light"] .log-output-container .log3 {
+  color: #2563eb;
+}
+
+[data-theme="light"] .log-output-container .log4 {
+  color: #0f172a;
+}
+
+[data-theme="light"] .log-output-container .log5 {
+  color: #334155;
+}
+
+[data-theme="light"] .log-output-container .good {
+  color: #15803d;
+}
+
+[data-theme="light"] .log-output-container .bad {
+  color: #dc2626;
+}
+
+[data-theme="light"] .log-output-container .goodish {
+  color: #16a34a;
+}
+
+[data-theme="light"] .log-output-container .badish {
+  color: #ca8a04;
+}
 
 .log-output-container .loading-pulse {
   display: inline-block;
@@ -718,26 +757,51 @@ body::before {
 }
 
 @keyframes pulse {
-  0%, 100% { opacity: 0.4; }
-  50% { opacity: 1; }
+
+  0%,
+  100% {
+    opacity: 0.4;
+  }
+
+  50% {
+    opacity: 1;
+  }
 }
 
 /* ============================================
    Animations
    ============================================ */
 @keyframes slide-up {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .animate-in {
   animation: slide-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-.animate-in:nth-child(1) { animation-delay: 0s; }
-.animate-in:nth-child(2) { animation-delay: 0.08s; }
-.animate-in:nth-child(3) { animation-delay: 0.16s; }
-.animate-in:nth-child(4) { animation-delay: 0.24s; }
+.animate-in:nth-child(1) {
+  animation-delay: 0s;
+}
+
+.animate-in:nth-child(2) {
+  animation-delay: 0.08s;
+}
+
+.animate-in:nth-child(3) {
+  animation-delay: 0.16s;
+}
+
+.animate-in:nth-child(4) {
+  animation-delay: 0.24s;
+}
 
 /* ============================================
    Responsive
@@ -746,26 +810,32 @@ body::before {
   .page-wrapper {
     padding: 32px 16px 60px;
   }
+
   .card {
     padding: 20px;
   }
+
   .app-title {
     font-size: 1.4rem;
   }
+
   .file-drop-zone {
     padding: 28px 16px;
   }
+
   .theme-toggle {
     top: 12px;
     right: 12px;
     width: 38px;
     height: 38px;
   }
+
   .log-modal {
     width: 96vw;
     height: 90vh;
     border-radius: var(--radius-md);
   }
+
   .log-modal-body {
     padding: 16px;
     font-size: 0.78rem;
