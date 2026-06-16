@@ -1,7 +1,7 @@
 github.com/Nirzak/eac-logchecker v1.0.1 h1:IuGvTTyTXskRBGSO87TXOVJ8ZO9x9gQhu/F+iNNk8SY=
 github.com/Nirzak/eac-logchecker v1.0.1/go.mod h1:GB7RS2OUejNf9dEA1UkUGlokdKdYTuJaSC4KAVoJS5k=
-github.com/Nirzak/logchecker-go v1.14.6 h1:IPu6bcrPP8I1YILhfwZpSCVRwQgpW1LE97uOzEMuMtY=
-github.com/Nirzak/logchecker-go v1.14.6/go.mod h1:lBv6YPBmDZFfe/1mWQSgitSyO/LB7iv1cPJN98yUsCM=
+github.com/Nirzak/logchecker-go v1.14.7 h1:rVHhltkJC7yWkVysUH0WY5fNZmMJZX8sszIwDvKWnvA=
+github.com/Nirzak/logchecker-go v1.14.7/go.mod h1:E6rG0Ailh/NRFU5fTztunAPFD7Avc7OJCa/3lUrW/+g=
 github.com/Nirzak/xld-logchecker v1.0.0 h1:/WpnN2/7eWglXaSNsSMu9OPRgyssHjINWVRhvfPX0p0=
 github.com/Nirzak/xld-logchecker v1.0.0/go.mod h1:ESqpyEWU+Y18C+ZveC8F8KacHzM9UT6DaIjRrBGkrzs=
 golang.org/x/text v0.37.0 h1:Cqjiwd9eSg8e0QAkyCaQTNHFIIzWtidPahFWR83rTrc=
