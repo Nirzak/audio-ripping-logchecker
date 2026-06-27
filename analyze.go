@@ -104,7 +104,7 @@ type apiResult struct {
 	RipperVersion string   `json:"ripper_version"`
 	Score         int      `json:"score"`
 	ChecksumState string   `json:"checksum_state"`
-	Details       []string `json:"details,omitempty"`
+	Details       []string `json:"details"`
 	Language      string   `json:"language"`
 	IsCombinedLog bool     `json:"is_combined_log"`
 	RdbarrRip     string   `json:"rdbarr_rip,omitempty"`
