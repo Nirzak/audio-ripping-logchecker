@@ -103,6 +103,24 @@ func loadTemplate(baseDir string) (*template.Template, error) {
 			}
 			return strings.ToUpper(s[:1]) + s[1:]
 		},
+		"getLabel": func(key string) string {
+			switch key {
+			case "ripper":
+				return "Ripper"
+			case "ripper_version":
+				return "Version"
+			case "language":
+				return "Language"
+			case "checksum_state":
+				return "Checksum"
+			case "combined_log":
+				return "Combined Log"
+			case "rdbarr_rip":
+				return "Rdbarr Rip"
+			default:
+				return strings.Title(strings.ReplaceAll(key, "_", " "))
+			}
+		},
 	}
 	p := filepath.Join(baseDir, "templates", "index.html")
 	return template.New("index.html").Funcs(funcMap).ParseFiles(p)

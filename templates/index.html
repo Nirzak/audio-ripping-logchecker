@@ -174,8 +174,52 @@
           <div class="summary-grid" id="summary-grid">
             {{range .Summary}}
             <div class="summary-item" data-key="{{.Key}}">
-              <span class="summary-key">{{capitalize .Key}}</span>
-              <span class="summary-value">{{.Value}}</span>
+              <div class="summary-icon-box">
+                {{if eq .Key "ripper"}}
+                  <!-- CD / vinyl record / concentric settings icon -->
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"/>
+                    <circle cx="12" cy="12" r="3"/>
+                  </svg>
+                {{else if eq .Key "ripper_version"}}
+                  <!-- Code icon </> -->
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="16 18 22 12 16 6"/>
+                    <polyline points="8 6 2 12 8 18"/>
+                  </svg>
+                {{else if eq .Key "language"}}
+                  <!-- Globe icon -->
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"/>
+                    <line x1="2" y1="12" x2="22" y2="12"/>
+                    <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+                  </svg>
+                {{else if eq .Key "checksum_state"}}
+                  <!-- Shield check icon -->
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                    <polyline points="9 11 11 13 15 9"/>
+                  </svg>
+                {{else if eq .Key "combined_log"}}
+                  <!-- Document icon -->
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                    <polyline points="14 2 14 8 20 8"/>
+                    <line x1="16" y1="13" x2="8" y2="13"/>
+                    <line x1="16" y1="17" x2="8" y2="17"/>
+                  </svg>
+                {{else}}
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"/>
+                    <line x1="12" y1="16" x2="12" y2="12"/>
+                    <line x1="12" y1="8" x2="12.01" y2="8"/>
+                  </svg>
+                {{end}}
+              </div>
+              <div class="summary-info">
+                <span class="summary-key">{{getLabel .Key}}</span>
+                <span class="summary-value {{if eq .Key "checksum_state"}}val-checksum{{end}}">{{.Value}}</span>
+              </div>
             </div>
             {{end}}
           </div>
@@ -276,12 +320,31 @@
           <div class="discid-grid">
             {{range .DiscIDs}}
             <div class="discid-item" data-key="{{.Key}}">
-              <span class="discid-sq" aria-hidden="true"></span>
+              <span class="discid-sq" aria-hidden="true">
+                {{if eq .Key "gnudb"}}
+                  <!-- Music note SVG -->
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M9 18V5l12-2v13"></path>
+                    <circle cx="6" cy="18" r="3"></circle>
+                    <circle cx="18" cy="16" r="3"></circle>
+                  </svg>
+                {{else if eq .Key "musicbrainz"}}
+                  MB
+                {{else if eq .Key "ctdb"}}
+                  CT
+                {{else if eq .Key "freedb"}}
+                  DB
+                {{else if eq .Key "accuraterip"}}
+                  AR
+                {{else}}
+                  {{.Label}}
+                {{end}}
+              </span>
               <div class="discid-main">
                 <div class="discid-head">
                   <span class="discid-label">{{.Label}}</span>
                   {{if .URL}}
-                  <a class="discid-link" href="{{.URL}}" target="_blank" rel="noopener noreferrer"
+                  <a class="discid-link-inline" href="{{.URL}}" target="_blank" rel="noopener noreferrer"
                     aria-label="Open {{.Label}} lookup" title="Open {{.Label}} lookup">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                       stroke-linejoin="round">
@@ -289,6 +352,9 @@
                       <polyline points="7 7 17 7 17 17"></polyline>
                     </svg>
                   </a>
+                  {{end}}
+                  {{if .Badge}}
+                  <span class="discid-badge badge-{{.Badge.State}}">{{.Badge.Label}}</span>
                   {{end}}
                 </div>
                 <span class="discid-value">{{.Value}}</span>
@@ -303,8 +369,15 @@
                     <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
                   </svg>
                 </button>
-                {{if .Badge}}
-                <span class="discid-badge badge-{{.Badge.State}}">{{.Badge.Label}}</span>
+                {{if and .URL (not .Badge)}}
+                <a class="discid-link-action icon-btn" href="{{.URL}}" target="_blank" rel="noopener noreferrer"
+                  aria-label="Open {{.Label}} lookup" title="Open {{.Label}} lookup">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round">
+                    <line x1="7" y1="17" x2="17" y2="7"></line>
+                    <polyline points="7 7 17 7 17 17"></polyline>
+                  </svg>
+                </a>
                 {{end}}
               </div>
             </div>

@@ -220,15 +220,28 @@ func analyze(raw []byte, origSuffix string, rdbarrRip bool) (*analysisResult, st
 // resultToSummary converts an analysisResult into display-friendly key/value pairs
 // for the index template.
 func resultToSummary(r *analysisResult) []summaryItem {
+	ripperDisplay := r.Ripper
+	if strings.ToLower(r.Ripper) == "eac" {
+		ripperDisplay = "Exact Audio Copy"
+	}
+
+	langDisplay := r.Language
+	if strings.ToLower(r.Language) == "en" {
+		langDisplay = "English"
+	}
+
+	combinedDisplay := "No"
+	if r.IsCombinedLog {
+		combinedDisplay = "Yes"
+	}
+
 	items := []summaryItem{
-		{Key: "ripper", Value: r.Ripper},
+		{Key: "ripper", Value: ripperDisplay},
 		{Key: "ripper_version", Value: r.RipperVersion},
 		{Key: "score", Value: strconv.Itoa(r.Score)},
 		{Key: "checksum_state", Value: r.ChecksumState},
-		{Key: "language", Value: r.Language},
-	}
-	if r.IsCombinedLog {
-		items = append(items, summaryItem{Key: "combined_log", Value: "Yes"})
+		{Key: "language", Value: langDisplay},
+		{Key: "combined_log", Value: combinedDisplay},
 	}
 	if r.RdbarrRip != "" {
 		items = append(items, summaryItem{Key: "rdbarr_rip", Value: r.RdbarrRip})
