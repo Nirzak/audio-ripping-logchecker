@@ -102,6 +102,7 @@ type pageData struct {
 	Subpath  string
 	Error    string
 	Summary  []summaryItem
+	DiscIDs  []discID
 	Details  []string
 	ResultID string
 }
@@ -247,6 +248,7 @@ func (s *server) handleUpload(w http.ResponseWriter, r *http.Request, data *page
 	s.store.set(id, buildResultHTML(sanitizeHTML(htmlLog), s.cfg.AppRoot))
 
 	data.Summary = resultToSummary(res)
+	data.DiscIDs = res.DiscIDs
 	data.Details = res.Details
 	data.ResultID = id
 	s.render(w, *data)

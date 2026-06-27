@@ -110,6 +110,37 @@
       </div>
     </div>
 
+    <!-- Results: Disc IDs -->
+    {{if .DiscIDs}}
+    <div class="card animate-in">
+      <div class="section-title">Disc IDs</div>
+      <div class="discid-grid">
+        {{range .DiscIDs}}
+        <div class="discid-item" data-key="{{.Key}}">
+          <div class="discid-head">
+            <span class="discid-label">{{.Label}}</span>
+            {{if .URL}}
+            <a class="discid-link" href="{{.URL}}" target="_blank" rel="noopener noreferrer"
+              aria-label="Open {{.Label}} lookup" title="Open {{.Label}} lookup">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                stroke-linejoin="round">
+                <line x1="7" y1="17" x2="17" y2="7"></line>
+                <polyline points="7 7 17 7 17 17"></polyline>
+              </svg>
+            </a>
+            {{end}}
+            {{if .Badge}}
+            <span class="discid-badge badge-{{.Badge.State}}">{{.Badge.Label}}</span>
+            {{end}}
+          </div>
+          <span class="discid-value">{{.Value}}</span>
+          {{if .Title}}<span class="discid-title">{{.Title}}</span>{{end}}
+        </div>
+        {{end}}
+      </div>
+    </div>
+    {{end}}
+
     <!-- Results: Details -->
     {{if .Details}}
     <div class="card animate-in">
