@@ -714,6 +714,9 @@ body {
   border-radius: var(--radius-md);
   border: 1px solid var(--border-color);
   transition: border-color var(--transition-fast);
+  min-width: 0;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .discid-item:hover { border-color: var(--border-hover); }
@@ -762,20 +765,31 @@ body {
   color: var(--text-primary);
 }
 
-/* Small inline blue link next to title */
+/* Small inline link button next to title */
 .discid-link-inline {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 14px;
-  height: 14px;
-  color: var(--accent-blue);
-  transition: opacity var(--transition-fast);
+  width: 20px;
+  height: 20px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  color: var(--text-secondary);
+  transition: all var(--transition-fast);
   text-decoration: none;
 }
 
-.discid-link-inline:hover { opacity: 0.8; }
-.discid-link-inline svg { width: 12px; height: 12px; }
+.discid-link-inline:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(99, 179, 237, 0.3);
+  color: var(--accent-blue);
+}
+
+.discid-link-inline svg {
+  width: 10px;
+  height: 10px;
+}
 
 .discid-value {
   display: block;
@@ -805,12 +819,12 @@ body {
   flex-shrink: 0;
 }
 
-.discid-copy, .discid-link-action {
+.discid-copy {
   width: 28px;
   height: 28px;
 }
 
-.discid-copy svg, .discid-link-action svg {
+.discid-copy svg {
   width: 13px;
   height: 13px;
 }

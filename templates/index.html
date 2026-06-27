@@ -369,16 +369,6 @@
                     <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
                   </svg>
                 </button>
-                {{if and .URL (not .Badge)}}
-                <a class="discid-link-action icon-btn" href="{{.URL}}" target="_blank" rel="noopener noreferrer"
-                  aria-label="Open {{.Label}} lookup" title="Open {{.Label}} lookup">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                    stroke-linejoin="round">
-                    <line x1="7" y1="17" x2="17" y2="7"></line>
-                    <polyline points="7 7 17 7 17 17"></polyline>
-                  </svg>
-                </a>
-                {{end}}
               </div>
             </div>
             {{end}}
