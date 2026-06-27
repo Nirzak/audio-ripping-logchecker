@@ -119,7 +119,7 @@ func collectDiscIDs(lc *logchecker.Logchecker) []discID {
 		ids = append(ids, discID{Key: "ctdb", Label: "CTDB", Value: id, URL: t.CTDBLookupURL()})
 	}
 	if id := t.FreeDBDiscID(); id != "" {
-		ids = append(ids, discID{Key: "freedb", Label: "FreeDB", Value: id, URL: t.FreeDBLookupURL()})
+		ids = append(ids, discID{Key: "freedb", Label: "FreeDB", Value: id})
 	}
 
 	// Concurrent external lookups under a single shared deadline.
