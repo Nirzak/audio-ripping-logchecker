@@ -96,6 +96,67 @@ type discID struct {
 	Badge *discBadge `json:"badge,omitempty"`
 }
 
+// apiResult is the flat, client-friendly JSON shape returned by POST /api.
+// It flattens analysisResult.DiscIDs into individual id/url/status fields so
+// consumers don't have to walk a nested array. Empty fields are omitted.
+type apiResult struct {
+	Ripper        string   `json:"ripper"`
+	RipperVersion string   `json:"ripper_version"`
+	Score         int      `json:"score"`
+	ChecksumState string   `json:"checksum_state"`
+	Details       []string `json:"details,omitempty"`
+	Language      string   `json:"language"`
+	IsCombinedLog bool     `json:"is_combined_log"`
+	RdbarrRip     string   `json:"rdbarr_rip,omitempty"`
+
+	MusicBrainzID  string `json:"musicbrainz_id,omitempty"`
+	MusicBrainzURL string `json:"musicbrainz_url,omitempty"`
+	CTDBID         string `json:"ctdb_id,omitempty"`
+	CTDBURL        string `json:"ctdb_url,omitempty"`
+	FreeDBID       string `json:"freedb_id,omitempty"`
+	AccurateRipID  string `json:"accuraterip_id,omitempty"`
+	AccurateRipSt  string `json:"accuraterip_status,omitempty"`
+	GnuDBID        string `json:"gnudb_id,omitempty"`
+	GnuDBURL       string `json:"gnudb_url,omitempty"`
+	GnuDBStatus    string `json:"gnudb_status,omitempty"`
+	GnuDBTitle     string `json:"gnudb_title,omitempty"`
+}
+
+// toAPIResult flattens an analysisResult into the apiResult wire shape.
+func (r *analysisResult) toAPIResult() apiResult {
+	out := apiResult{
+		Ripper:        r.Ripper,
+		RipperVersion: r.RipperVersion,
+		Score:         r.Score,
+		ChecksumState: r.ChecksumState,
+		Details:       r.Details,
+		Language:      r.Language,
+		IsCombinedLog: r.IsCombinedLog,
+		RdbarrRip:     r.RdbarrRip,
+	}
+	for _, d := range r.DiscIDs {
+		switch d.Key {
+		case "musicbrainz":
+			out.MusicBrainzID, out.MusicBrainzURL = d.Value, d.URL
+		case "ctdb":
+			out.CTDBID, out.CTDBURL = d.Value, d.URL
+		case "freedb":
+			out.FreeDBID = d.Value
+		case "accuraterip":
+			out.AccurateRipID = d.Value
+			if d.Badge != nil {
+				out.AccurateRipSt = d.Badge.Label
+			}
+		case "gnudb":
+			out.GnuDBID, out.GnuDBURL, out.GnuDBTitle = d.Value, d.URL, d.Title
+			if d.Badge != nil {
+				out.GnuDBStatus = d.Badge.Label
+			}
+		}
+	}
+	return out
+}
+
 // collectDiscIDs computes the disc identifiers (MusicBrainz, CTDB, FreeDB,
 // AccurateRip, gnudb) from the parsed TOC. The AccurateRip and gnudb database
 // lookups hit external servers; they run concurrently under a single shared
