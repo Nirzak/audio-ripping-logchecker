@@ -3,7 +3,7 @@ module github.com/Nirzak/audio-ripping-logchecker
 go 1.25.0
 
 require (
-	github.com/Nirzak/logchecker-go v1.14.9
+	github.com/Nirzak/logchecker-go v1.15.0
 	golang.org/x/time v0.15.0
 )
 
