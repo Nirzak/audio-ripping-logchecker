@@ -99,12 +99,5 @@ rules.
 - To run locally: `go run .` or `go build -o /tmp/lcweb . && PORT=5151 /tmp/lcweb`,
   then upload a sample (e.g. `../logchecker-go/tests/logs/xld/utf8/macroman.log`).
 
-## Earlier related work (same session, already done)
-Backend already integrates logchecker-go v1.14.9 disc IDs: `collectDiscIDs()` in
-`analyze.go` runs AccurateRip + gnudb lookups concurrently (8s shared timeout,
-`discLookupTimeout` in `config.go`), populates `analysisResult.DiscIDs` (also in
-JSON `/api`). MusicBrainz/CTDB have link URLs; AccurateRip is badge-only; gnudb
-has ID+URL+match badge+title; FreeDB is ID-only.
-
 ## Status
 Changes are **not committed** yet.
