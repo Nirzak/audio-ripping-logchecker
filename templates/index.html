@@ -161,7 +161,7 @@
 
         <!-- Results: Summary / Metadata -->
         {{if .Summary}}
-        <div class="card animate-in">
+        <div class="card metadata-card animate-in">
           <div class="section-title">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
               stroke-linejoin="round">
@@ -228,7 +228,7 @@
 
         <!-- Results: Details -->
         {{if .Details}}
-        <div class="card animate-in">
+        <div class="card details-card animate-in">
           <div class="section-title">Details</div>
           {{range .Details}}
           <div class="detail-item">{{.}}</div>
@@ -238,7 +238,7 @@
 
         <!-- Results: Log Output -->
         {{if .ResultID}}
-        <div class="card animate-in">
+        <div class="card report-card animate-in">
           <div class="log-toolbar">
             <span class="section-title log-toolbar-title">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -315,7 +315,7 @@
 
         <!-- Disc IDs -->
         {{if .DiscIDs}}
-        <div class="card animate-in">
+        <div class="card discid-card animate-in">
           <div class="section-title">Disc IDs</div>
           <div class="discid-grid">
             {{range .DiscIDs}}
