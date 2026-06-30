@@ -339,7 +339,7 @@
                 <line x1="16" y1="13" x2="8" y2="13"></line>
                 <line x1="16" y1="17" x2="8" y2="17"></line>
               </svg>
-              Original Report
+              Log Report
             </span>
             <div class="log-search-wrap">
               <svg class="log-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
@@ -347,8 +347,22 @@
                 <circle cx="11" cy="11" r="8"></circle>
                 <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
               </svg>
-              <input type="text" id="log-search" class="log-search" placeholder="Search in report…"
-                aria-label="Search in report" autocomplete="off" spellcheck="false">
+              <input type="text" id="log-search" class="log-search" placeholder="Search in log report…"
+                aria-label="Search in log report" autocomplete="off" spellcheck="false">
+            </div>
+            <div class="log-legend">
+              <div class="log-legend-item" title="Conforming or passing detail">
+                <span class="legend-box legend-good"></span>
+                <span class="legend-label">Good</span>
+              </div>
+              <div class="log-legend-item" title="Non-critical warning or tolerated issue">
+                <span class="legend-box legend-warning"></span>
+                <span class="legend-label">Warning</span>
+              </div>
+              <div class="log-legend-item" title="Critical error, deduction or bad value">
+                <span class="legend-box legend-bad"></span>
+                <span class="legend-label">Bad</span>
+              </div>
             </div>
             <div class="log-tools">
               <button type="button" class="icon-btn" id="btn-expand" aria-label="Expand log output"
