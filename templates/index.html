@@ -88,156 +88,248 @@
     </div>
     {{end}}
 
-    <div class="content-grid {{if .Summary}}with-sidebar{{end}}">
+    {{if .Summary}}
+    <!-- ===== RESULTS LAYOUT ===== -->
+    <div class="results-layout">
 
-      <!-- Main column -->
-      <div class="main-col">
-
-        <!-- Upload -->
-        <form method="post" enctype="multipart/form-data" id="upload-form">
-          <div class="card upload-card animate-in">
-            <div class="upload-card-body">
-              <!-- Drop zone -->
-              <div class="file-drop-zone" id="file-drop-zone">
-                <!-- Cloud upload icon -->
-                <svg class="drop-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
-                  stroke-linecap="round" stroke-linejoin="round">
-                  <polyline points="16 16 12 12 8 16"></polyline>
-                  <line x1="12" y1="12" x2="12" y2="21"></line>
-                  <path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"></path>
-                </svg>
-                <p class="drop-text-main">Drag &amp; drop your log file here</p>
-                <p class="drop-text-sub">or click to browse</p>
-                <label class="btn-browse" for="logfile">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                    <polyline points="14 2 14 8 20 8"></polyline>
-                  </svg>
-                  Browse File
-                </label>
-                <p class="drop-hint">Supports: .log &nbsp;.txt &nbsp;• &nbsp;Max 200 KB</p>
-                <input type="file" id="logfile" name="logfile" accept=".log,.txt" required>
-              </div>
-              <!-- Supported rippers -->
-              <div class="supported-rippers">
-                <span class="supported-title">Supported Rippers</span>
-                <ul class="ripper-list">
-                  <li>
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
-                      stroke-linecap="round" stroke-linejoin="round">
-                      <polyline points="20 6 9 17 4 12"></polyline>
-                    </svg>EAC (Exact Audio Copy)</li>
-                  <li>
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
-                      stroke-linecap="round" stroke-linejoin="round">
-                      <polyline points="20 6 9 17 4 12"></polyline>
-                    </svg>XLD</li>
-                  <li>
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
-                      stroke-linecap="round" stroke-linejoin="round">
-                      <polyline points="20 6 9 17 4 12"></polyline>
-                    </svg>dBpoweramp</li>
-                  <li>
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
-                      stroke-linecap="round" stroke-linejoin="round">
-                      <polyline points="20 6 9 17 4 12"></polyline>
-                    </svg>Whipper</li>
-                </ul>
-              </div>
-            </div>
-            <div class="file-selected-name" id="file-selected-name"></div>
-          </div>
-          <button type="submit" class="btn-analyze" id="btn-analyze">
-            <span>
-              Analyze Log
-              <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+      <!-- Upload -->
+      <form method="post" enctype="multipart/form-data" id="upload-form">
+        <div class="card upload-card animate-in">
+          <div class="upload-card-body">
+            <!-- Drop zone -->
+            <div class="file-drop-zone" id="file-drop-zone">
+              <!-- Cloud upload icon -->
+              <svg class="drop-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
                 stroke-linecap="round" stroke-linejoin="round">
-                <line x1="5" y1="12" x2="19" y2="12"></line>
-                <polyline points="12 5 19 12 12 19"></polyline>
+                <polyline points="16 16 12 12 8 16"></polyline>
+                <line x1="12" y1="12" x2="12" y2="21"></line>
+                <path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"></path>
               </svg>
-            </span>
-          </button>
-        </form>
-
-        <!-- Results: Summary / Metadata -->
-        {{if .Summary}}
-        <div class="card metadata-card animate-in">
-          <div class="section-title">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-              stroke-linejoin="round">
-              <circle cx="12" cy="12" r="10"></circle>
-              <line x1="12" y1="16" x2="12" y2="12"></line>
-              <line x1="12" y1="8" x2="12.01" y2="8"></line>
-            </svg>
-            Metadata
+              <p class="drop-text-main">Drag &amp; drop your log file here</p>
+              <p class="drop-text-sub">or click to browse</p>
+              <label class="btn-browse" for="logfile">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                  <polyline points="14 2 14 8 20 8"></polyline>
+                </svg>
+                Browse File
+              </label>
+              <p class="drop-hint">Supports: .log &nbsp;.txt &nbsp;• &nbsp;Max 200 KB</p>
+              <input type="file" id="logfile" name="logfile" accept=".log,.txt" required>
+            </div>
+            <!-- Supported rippers -->
+            <div class="supported-rippers">
+              <span class="supported-title">Supported Rippers</span>
+              <ul class="ripper-list">
+                <li>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>EAC (Exact Audio Copy)</li>
+                <li>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>XLD</li>
+                <li>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>dBpoweramp</li>
+                <li>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>Whipper</li>
+              </ul>
+            </div>
           </div>
-          <div class="summary-grid" id="summary-grid">
-            {{range .Summary}}
-            <div class="summary-item" data-key="{{.Key}}">
-              <div class="summary-icon-box">
-                {{if eq .Key "ripper"}}
-                  <!-- CD / vinyl record / concentric settings icon -->
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="12" cy="12" r="10"/>
-                    <circle cx="12" cy="12" r="3"/>
+          <div class="file-selected-name" id="file-selected-name"></div>
+        </div>
+        <button type="submit" class="btn-analyze" id="btn-analyze">
+          <span>
+            Analyze Log
+            <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+              <polyline points="12 5 19 12 12 19"></polyline>
+            </svg>
+          </span>
+        </button>
+      </form>
+
+      <!-- Top Row: Summary (left) + Disc IDs (right) side-by-side on desktop -->
+      <div class="results-top-row">
+
+        <!-- Left Column -->
+        <div class="results-main-col">
+
+          <!-- Summary Card -->
+          <div class="card summary-card animate-in">
+            <div class="section-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="16" x2="12" y2="12"></line>
+                <line x1="12" y1="8" x2="12.01" y2="8"></line>
+              </svg>
+              Summary
+            </div>
+            <div class="summary-card-body">
+              <!-- Left Side: Score ring -->
+              <div class="summary-score-section">
+                <div class="score-ring-wrap">
+                  <svg class="score-ring" viewBox="0 0 120 120" id="score-ring">
+                    <defs>
+                      <linearGradient id="scoreGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#22d3ee"></stop>
+                        <stop offset="100%" stop-color="#a78bfa"></stop>
+                      </linearGradient>
+                    </defs>
+                    <circle class="score-ring-track" cx="60" cy="60" r="52"></circle>
+                    <circle class="score-ring-fill" id="score-ring-fill" cx="60" cy="60" r="52"></circle>
                   </svg>
-                {{else if eq .Key "ripper_version"}}
-                  <!-- Code icon </> -->
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="16 18 22 12 16 6"/>
-                    <polyline points="8 6 2 12 8 18"/>
-                  </svg>
-                {{else if eq .Key "language"}}
-                  <!-- Globe icon -->
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="12" cy="12" r="10"/>
-                    <line x1="2" y1="12" x2="22" y2="12"/>
-                    <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
-                  </svg>
-                {{else if eq .Key "checksum_state"}}
-                  <!-- Shield check icon -->
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-                    <polyline points="9 11 11 13 15 9"/>
-                  </svg>
-                {{else if eq .Key "combined_log"}}
-                  <!-- Document icon -->
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                    <polyline points="14 2 14 8 20 8"/>
-                    <line x1="16" y1="13" x2="8" y2="13"/>
-                    <line x1="16" y1="17" x2="8" y2="17"/>
-                  </svg>
-                {{else}}
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="12" cy="12" r="10"/>
-                    <line x1="12" y1="16" x2="12" y2="12"/>
-                    <line x1="12" y1="8" x2="12.01" y2="8"/>
-                  </svg>
-                {{end}}
+                  <div class="score-center">
+                    <span class="score-number" id="score-number">—</span>
+                    <span class="score-label" id="score-label"></span>
+                  </div>
+                </div>
+                <p class="score-desc" id="score-desc"></p>
               </div>
-              <div class="summary-info">
-                <span class="summary-key">{{getLabel .Key}}</span>
-                <span class="summary-value {{if eq .Key "checksum_state"}}val-checksum{{end}}">{{.Value}}</span>
+              <!-- Right Side: Metadata grid -->
+              <div class="summary-metadata-section">
+                <div class="summary-grid" id="summary-grid">
+                  {{range .Summary}}
+                  <div class="summary-item" data-key="{{.Key}}">
+                    <div class="summary-icon-box">
+                      {{if eq .Key "ripper"}}
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                          <circle cx="12" cy="12" r="10"/>
+                          <circle cx="12" cy="12" r="3"/>
+                        </svg>
+                      {{else if eq .Key "ripper_version"}}
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                          <polyline points="16 18 22 12 16 6"/>
+                          <polyline points="8 6 2 12 8 18"/>
+                        </svg>
+                      {{else if eq .Key "language"}}
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                          <circle cx="12" cy="12" r="10"/>
+                          <line x1="2" y1="12" x2="22" y2="12"/>
+                          <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+                        </svg>
+                      {{else if eq .Key "checksum_state"}}
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                          <polyline points="9 11 11 13 15 9"/>
+                        </svg>
+                      {{else if eq .Key "combined_log"}}
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                          <polyline points="14 2 14 8 20 8"/>
+                          <line x1="16" y1="13" x2="8" y2="13"/>
+                          <line x1="16" y1="17" x2="8" y2="17"/>
+                        </svg>
+                      {{else}}
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                          <circle cx="12" cy="12" r="10"/>
+                          <line x1="12" y1="16" x2="12" y2="12"/>
+                          <line x1="12" y1="8" x2="12.01" y2="8"/>
+                        </svg>
+                      {{end}}
+                    </div>
+                    <div class="summary-info">
+                      <span class="summary-key">{{getLabel .Key}}</span>
+                      <span class="summary-value {{if eq .Key "checksum_state"}}val-checksum{{end}}">{{.Value}}</span>
+                    </div>
+                  </div>
+                  {{end}}
+                </div>
               </div>
             </div>
+          </div>
+
+          <!-- Details Card -->
+          {{if .Details}}
+          <div class="card details-card animate-in">
+            <div class="section-title">Details</div>
+            {{range .Details}}
+            <div class="detail-item">{{.}}</div>
             {{end}}
           </div>
-        </div>
-        {{end}}
-
-        <!-- Results: Details -->
-        {{if .Details}}
-        <div class="card details-card animate-in">
-          <div class="section-title">Details</div>
-          {{range .Details}}
-          <div class="detail-item">{{.}}</div>
           {{end}}
+
         </div>
+
+        <!-- Right Column: Disc IDs -->
+        {{if .DiscIDs}}
+        <aside class="results-sidebar">
+          <div class="card discid-card animate-in">
+            <div class="section-title">Disc IDs</div>
+            <div class="discid-grid">
+              {{range .DiscIDs}}
+              <div class="discid-item" data-key="{{.Key}}">
+                <span class="discid-sq" aria-hidden="true">
+                  {{if eq .Key "gnudb"}}
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M9 18V5l12-2v13"></path>
+                      <circle cx="6" cy="18" r="3"></circle>
+                      <circle cx="18" cy="16" r="3"></circle>
+                    </svg>
+                  {{else if eq .Key "musicbrainz"}}
+                    MB
+                  {{else if eq .Key "ctdb"}}
+                    CT
+                  {{else if eq .Key "freedb"}}
+                    DB
+                  {{else if eq .Key "accuraterip"}}
+                    AR
+                  {{else}}
+                    {{.Label}}
+                  {{end}}
+                </span>
+                <div class="discid-main">
+                  <div class="discid-head">
+                    <span class="discid-label">{{.Label}}</span>
+                    {{if .URL}}
+                    <a class="discid-link-inline" href="{{.URL}}" target="_blank" rel="noopener noreferrer"
+                      aria-label="Open {{.Label}} lookup" title="Open {{.Label}} lookup">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <line x1="7" y1="17" x2="17" y2="7"></line>
+                        <polyline points="7 7 17 7 17 17"></polyline>
+                      </svg>
+                    </a>
+                    {{end}}
+                    {{if .Badge}}
+                    <span class="discid-badge badge-{{.Badge.State}}">{{.Badge.Label}}</span>
+                    {{end}}
+                  </div>
+                  <span class="discid-value">{{.Value}}</span>
+                  {{if .Title}}<span class="discid-title">{{.Title}}</span>{{end}}
+                </div>
+                <div class="discid-actions">
+                  <button type="button" class="discid-copy icon-btn" data-copy="{{.Value}}"
+                    aria-label="Copy {{.Label}} ID" title="Copy {{.Label}} ID">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                      stroke-linejoin="round">
+                      <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+              {{end}}
+            </div>
+          </div>
+        </aside>
         {{end}}
 
-        <!-- Results: Log Output -->
-        {{if .ResultID}}
+      </div>
+
+      <!-- Bottom Row: Original Report (full width below both columns) -->
+      {{if .ResultID}}
+      <div class="results-bottom-row">
         <div class="card report-card animate-in">
           <div class="log-toolbar">
             <span class="section-title log-toolbar-title">
@@ -283,103 +375,79 @@
             </div>
           </div>
         </div>
-        {{end}}
-
       </div>
-
-      <!-- Sidebar -->
-      {{if .Summary}}
-      <aside class="sidebar">
-
-        <!-- Score -->
-        <div class="card score-card animate-in">
-          <div class="section-title">Score</div>
-          <div class="score-ring-wrap">
-            <svg class="score-ring" viewBox="0 0 120 120" id="score-ring">
-              <defs>
-                <linearGradient id="scoreGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stop-color="#22d3ee"></stop>
-                  <stop offset="100%" stop-color="#a78bfa"></stop>
-                </linearGradient>
-              </defs>
-              <circle class="score-ring-track" cx="60" cy="60" r="52"></circle>
-              <circle class="score-ring-fill" id="score-ring-fill" cx="60" cy="60" r="52"></circle>
-            </svg>
-            <div class="score-center">
-              <span class="score-number" id="score-number">—</span>
-              <span class="score-label" id="score-label"></span>
-            </div>
-          </div>
-          <p class="score-desc" id="score-desc"></p>
-        </div>
-
-        <!-- Disc IDs -->
-        {{if .DiscIDs}}
-        <div class="card discid-card animate-in">
-          <div class="section-title">Disc IDs</div>
-          <div class="discid-grid">
-            {{range .DiscIDs}}
-            <div class="discid-item" data-key="{{.Key}}">
-              <span class="discid-sq" aria-hidden="true">
-                {{if eq .Key "gnudb"}}
-                  <!-- Music note SVG -->
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M9 18V5l12-2v13"></path>
-                    <circle cx="6" cy="18" r="3"></circle>
-                    <circle cx="18" cy="16" r="3"></circle>
-                  </svg>
-                {{else if eq .Key "musicbrainz"}}
-                  MB
-                {{else if eq .Key "ctdb"}}
-                  CT
-                {{else if eq .Key "freedb"}}
-                  DB
-                {{else if eq .Key "accuraterip"}}
-                  AR
-                {{else}}
-                  {{.Label}}
-                {{end}}
-              </span>
-              <div class="discid-main">
-                <div class="discid-head">
-                  <span class="discid-label">{{.Label}}</span>
-                  {{if .URL}}
-                  <a class="discid-link-inline" href="{{.URL}}" target="_blank" rel="noopener noreferrer"
-                    aria-label="Open {{.Label}} lookup" title="Open {{.Label}} lookup">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                      stroke-linejoin="round">
-                      <line x1="7" y1="17" x2="17" y2="7"></line>
-                      <polyline points="7 7 17 7 17 17"></polyline>
-                    </svg>
-                  </a>
-                  {{end}}
-                  {{if .Badge}}
-                  <span class="discid-badge badge-{{.Badge.State}}">{{.Badge.Label}}</span>
-                  {{end}}
-                </div>
-                <span class="discid-value">{{.Value}}</span>
-                {{if .Title}}<span class="discid-title">{{.Title}}</span>{{end}}
-              </div>
-              <div class="discid-actions">
-                <button type="button" class="discid-copy icon-btn" data-copy="{{.Value}}"
-                  aria-label="Copy {{.Label}} ID" title="Copy {{.Label}} ID">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                    stroke-linejoin="round">
-                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-                  </svg>
-                </button>
-              </div>
-            </div>
-            {{end}}
-          </div>
-        </div>
-        {{end}}
-
-      </aside>
       {{end}}
 
     </div>
+
+    {{else}}
+    <!-- ===== HOME LAYOUT (no results yet) ===== -->
+    <div class="home-layout">
+      <form method="post" enctype="multipart/form-data" id="upload-form">
+        <div class="card upload-card animate-in">
+          <div class="upload-card-body">
+            <!-- Drop zone -->
+            <div class="file-drop-zone" id="file-drop-zone">
+              <svg class="drop-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="16 16 12 12 8 16"></polyline>
+                <line x1="12" y1="12" x2="12" y2="21"></line>
+                <path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"></path>
+              </svg>
+              <p class="drop-text-main">Drag &amp; drop your log file here</p>
+              <p class="drop-text-sub">or click to browse</p>
+              <label class="btn-browse" for="logfile">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                  <polyline points="14 2 14 8 20 8"></polyline>
+                </svg>
+                Browse File
+              </label>
+              <p class="drop-hint">Supports: .log &nbsp;.txt &nbsp;• &nbsp;Max 200 KB</p>
+              <input type="file" id="logfile" name="logfile" accept=".log,.txt" required>
+            </div>
+            <!-- Supported rippers -->
+            <div class="supported-rippers">
+              <span class="supported-title">Supported Rippers</span>
+              <ul class="ripper-list">
+                <li>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>EAC (Exact Audio Copy)</li>
+                <li>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>XLD</li>
+                <li>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>dBpoweramp</li>
+                <li>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>Whipper</li>
+              </ul>
+            </div>
+          </div>
+          <div class="file-selected-name" id="file-selected-name"></div>
+        </div>
+        <button type="submit" class="btn-analyze" id="btn-analyze">
+          <span>
+            Analyze Log
+            <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+              <polyline points="12 5 19 12 12 19"></polyline>
+            </svg>
+          </span>
+        </button>
+      </form>
+    </div>
+    {{end}}
 
     <!-- Log Modal -->
     {{if .ResultID}}
