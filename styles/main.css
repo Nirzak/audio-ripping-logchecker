@@ -570,12 +570,8 @@ body {
    ============================================ */
 .summary-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
-}
-
-.summary-item[data-key="combined_log"] {
-  grid-column: 1 / -1;
+  grid-template-columns: 1fr;
+  gap: 10px;
 }
 
 .summary-item {
@@ -662,7 +658,7 @@ body {
 }
 
 .summary-score-section {
-  flex: 0 0 180px;
+  flex: 0 0 200px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -671,7 +667,7 @@ body {
 
 .summary-score-section .score-ring-wrap {
   position: relative;
-  width: 145px;
+  width: 160px;
   margin: 0 auto;
 }
 
@@ -709,7 +705,7 @@ body {
 }
 
 .summary-score-section .score-number {
-  font-size: 2.1rem;
+  font-size: 2.4rem;
   font-weight: 800;
   line-height: 1;
   color: var(--text-primary);
@@ -720,16 +716,16 @@ body {
 
 .summary-score-section .score-label {
   margin-top: 4px;
-  font-size: 0.78rem;
+  font-size: 0.85rem;
   font-weight: 600;
   color: var(--accent-cyan);
 }
 
 .summary-score-section .score-desc {
-  font-size: 0.78rem;
+  font-size: 0.82rem;
   color: var(--text-muted);
   line-height: 1.35;
-  margin-top: 8px;
+  margin-top: 12px;
 }
 
 .summary-metadata-section {
