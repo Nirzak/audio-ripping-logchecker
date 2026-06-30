@@ -147,22 +147,13 @@ body {
 
 .app-brand-text { min-width: 0; }
 
-.logo-icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 42px;
-  height: 42px;
+.logo-image {
+  width: 44px;
+  height: 44px;
+  object-fit: contain;
   flex-shrink: 0;
-  border-radius: var(--radius-md);
-  background: linear-gradient(135deg, #5e3aed 0%, #9333ea 100%);
-  box-shadow: 0 0 20px rgba(147,51,234,0.3);
-}
-
-.logo-icon svg {
-  width: 22px;
-  height: 22px;
-  color: #fff;
+  border-radius: 50%;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .app-title {
@@ -256,8 +247,7 @@ body {
 
 /* Home layout (no results — centered upload card) */
 .home-layout {
-  max-width: 820px;
-  margin: 0 auto;
+  width: 100%;
 }
 
 

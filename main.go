@@ -70,6 +70,7 @@ func main() {
 	register("/style.css", serveFile(assetPath(baseDir, filepath.Join("styles", "log.css"))))
 	register("/main.css", serveFile(assetPath(baseDir, filepath.Join("styles", "main.css"))))
 	register("/main.js", serveFile(assetPath(baseDir, filepath.Join("scripts", "main.js"))))
+	register("/logo.png", serveFile(assetPath(baseDir, filepath.Join("styles", "logo.png"))))
 
 	addr := "0.0.0.0:" + cfg.Port
 	log.Info("starting logchecker",
