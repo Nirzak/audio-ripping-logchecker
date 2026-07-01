@@ -36,12 +36,23 @@ curl -X POST http://localhost:5050/api -F "logfile=@my_log.log"
 ```json
 {
   "ripper": "EAC",
-  "ripper_version": "1.6",
+  "ripper_version": "1.3",
   "score": 100,
   "checksum_state": "checksum_ok",
-  "details": [],
+  "details": null,
   "language": "en",
-  "is_combined_log": false
+  "is_combined_log": false,
+  "musicbrainz_id": "wIuHh1xPFhD4_OmVvz6lVMhdonE-",
+  "musicbrainz_url": "https://musicbrainz.org/cdtoc/attach?toc=1+10+217190+183+21385+41203+64840+85335+107188+128210+146855+168838+187170&tracks=10&id=wIuHh1xPFhD4_OmVvz6lVMhdonE-",
+  "ctdb_id": "LgiuDOWE08kAdzykzzIR3lULSi4-",
+  "ctdb_url": "https://db.cuetools.net/ui/?tocid=LgiuDOWE08kAdzykzzIR3lULSi4-",
+  "freedb_id": "970b4d0a",
+  "accuraterip_id": "010-0011cd9b-008e7e63-970b4d0a",
+  "accuraterip_status": "Found",
+  "gnudb_id": "920b4d88",
+  "gnudb_url": "https://gnudb.org/cd/920b4d88",
+  "gnudb_status": "Matched",
+  "gnudb_title": "Cutting Crew / Broadcast"
 }
 ```
 
