@@ -673,6 +673,16 @@ body {
   stroke-width: 8;
 }
 
+.summary-score-section .score-ring-deducted {
+  fill: none;
+  stroke: #ef4444;
+  stroke-width: 8;
+  stroke-dasharray: 326.7;
+  stroke-dashoffset: 326.7;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
 .summary-score-section .score-ring-fill {
   fill: none;
   stroke: url(#scoreGrad);
@@ -683,7 +693,7 @@ body {
   transition: stroke-dashoffset 0.9s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.summary-score-section .score-ring-fill.neg { stroke: var(--danger-text); }
+.summary-score-section .score-ring-fill.neg { stroke-dashoffset: 326.7; }
 
 .summary-score-section .score-center {
   position: absolute;

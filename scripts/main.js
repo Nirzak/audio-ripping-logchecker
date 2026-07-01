@@ -63,12 +63,14 @@ document.addEventListener("DOMContentLoaded", function() {
 
   /* ---- Score Ring ----
      Score is rendered server-side as a hidden summary item; relocate its value
-     into the sidebar ring. Negative score => red, empty ring. "Perfect Rip!"
-     label only at exactly 100; otherwise the number shows alone. */
+     into the sidebar ring. The gradient fill shows the earned portion; a red
+     "deducted" ring underneath reveals itself as points are lost. At 0 or
+     below the ring is fully red. */
   (function initScoreRing() {
     const scoreEl = document.querySelector('#summary-grid [data-key="score"] .summary-value');
     const numEl = document.getElementById("score-number");
     const ring = document.getElementById("score-ring-fill");
+    const redRing = document.getElementById("score-ring-deducted");
     if (!scoreEl || !numEl || !ring) return;
 
     const s = parseInt(scoreEl.textContent.trim(), 10);
@@ -81,7 +83,12 @@ document.addEventListener("DOMContentLoaded", function() {
     numEl.textContent = s;
     ring.style.setProperty("--score-pct", pct);
 
-    if (s < 0) {
+    // Show red deducted ring when score is below 100
+    if (redRing && s < 100) {
+      redRing.style.strokeDashoffset = "0"; // full red circle behind gradient
+    }
+
+    if (s <= 0) {
       ring.classList.add("neg");
       numEl.classList.add("neg");
     }
