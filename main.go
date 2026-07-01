@@ -97,13 +97,6 @@ func main() {
 // loadTemplate parses the index.html template from baseDir/templates/.
 func loadTemplate(baseDir string) (*template.Template, error) {
 	funcMap := template.FuncMap{
-		"capitalize": func(s string) string {
-			s = strings.ReplaceAll(s, "_", " ")
-			if s == "" {
-				return s
-			}
-			return strings.ToUpper(s[:1]) + s[1:]
-		},
 		"getLabel": func(key string) string {
 			switch key {
 			case "ripper":

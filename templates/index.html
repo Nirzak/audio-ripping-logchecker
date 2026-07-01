@@ -1,3 +1,68 @@
+{{define "upload-form"}}
+      <form method="post" enctype="multipart/form-data" id="upload-form">
+        <div class="card upload-card animate-in">
+          <div class="upload-card-body">
+            <!-- Drop zone -->
+            <div class="file-drop-zone" id="file-drop-zone">
+              <svg class="drop-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="16 16 12 12 8 16"></polyline>
+                <line x1="12" y1="12" x2="12" y2="21"></line>
+                <path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"></path>
+              </svg>
+              <p class="drop-text-main">Drag &amp; drop your log file here</p>
+              <p class="drop-text-sub">or click to browse</p>
+              <label class="btn-browse" for="logfile">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                  <polyline points="14 2 14 8 20 8"></polyline>
+                </svg>
+                Browse File
+              </label>
+              <p class="drop-hint">Supports: .log &nbsp;.txt &nbsp;• &nbsp;Max 200 KB</p>
+              <input type="file" id="logfile" name="logfile" accept=".log,.txt" required>
+            </div>
+            <!-- Supported rippers -->
+            <div class="supported-rippers">
+              <span class="supported-title">Supported Rippers</span>
+              <ul class="ripper-list">
+                <li>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>EAC (Exact Audio Copy)</li>
+                <li>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>XLD</li>
+                <li>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>dBpoweramp</li>
+                <li>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>Whipper</li>
+              </ul>
+            </div>
+          </div>
+          <div class="file-selected-name" id="file-selected-name"></div>
+        </div>
+        <button type="submit" class="btn-analyze" id="btn-analyze">
+          <span>
+            Analyze Log
+            <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+              <polyline points="12 5 19 12 12 19"></polyline>
+            </svg>
+          </span>
+        </button>
+      </form>
+{{end}}
 <!doctype html>
 <html lang="en" data-theme="dark">
 
@@ -85,71 +150,7 @@
     <!-- ===== RESULTS LAYOUT ===== -->
     <div class="results-layout">
 
-      <!-- Upload -->
-      <form method="post" enctype="multipart/form-data" id="upload-form">
-        <div class="card upload-card animate-in">
-          <div class="upload-card-body">
-            <!-- Drop zone -->
-            <div class="file-drop-zone" id="file-drop-zone">
-              <!-- Cloud upload icon -->
-              <svg class="drop-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
-                stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="16 16 12 12 8 16"></polyline>
-                <line x1="12" y1="12" x2="12" y2="21"></line>
-                <path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"></path>
-              </svg>
-              <p class="drop-text-main">Drag &amp; drop your log file here</p>
-              <p class="drop-text-sub">or click to browse</p>
-              <label class="btn-browse" for="logfile">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                  <polyline points="14 2 14 8 20 8"></polyline>
-                </svg>
-                Browse File
-              </label>
-              <p class="drop-hint">Supports: .log &nbsp;.txt &nbsp;• &nbsp;Max 200 KB</p>
-              <input type="file" id="logfile" name="logfile" accept=".log,.txt" required>
-            </div>
-            <!-- Supported rippers -->
-            <div class="supported-rippers">
-              <span class="supported-title">Supported Rippers</span>
-              <ul class="ripper-list">
-                <li>
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
-                    stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="20 6 9 17 4 12"></polyline>
-                  </svg>EAC (Exact Audio Copy)</li>
-                <li>
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
-                    stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="20 6 9 17 4 12"></polyline>
-                  </svg>XLD</li>
-                <li>
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
-                    stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="20 6 9 17 4 12"></polyline>
-                  </svg>dBpoweramp</li>
-                <li>
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
-                    stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="20 6 9 17 4 12"></polyline>
-                  </svg>Whipper</li>
-              </ul>
-            </div>
-          </div>
-          <div class="file-selected-name" id="file-selected-name"></div>
-        </div>
-        <button type="submit" class="btn-analyze" id="btn-analyze">
-          <span>
-            Analyze Log
-            <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-              stroke-linecap="round" stroke-linejoin="round">
-              <line x1="5" y1="12" x2="19" y2="12"></line>
-              <polyline points="12 5 19 12 12 19"></polyline>
-            </svg>
-          </span>
-        </button>
-      </form>
+      {{template "upload-form"}}
 
       <!-- Top Row: Summary (left) + Disc IDs (right) side-by-side on desktop -->
       <div class="results-top-row">
@@ -390,69 +391,7 @@
     {{else}}
     <!-- ===== HOME LAYOUT (no results yet) ===== -->
     <div class="home-layout">
-      <form method="post" enctype="multipart/form-data" id="upload-form">
-        <div class="card upload-card animate-in">
-          <div class="upload-card-body">
-            <!-- Drop zone -->
-            <div class="file-drop-zone" id="file-drop-zone">
-              <svg class="drop-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
-                stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="16 16 12 12 8 16"></polyline>
-                <line x1="12" y1="12" x2="12" y2="21"></line>
-                <path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"></path>
-              </svg>
-              <p class="drop-text-main">Drag &amp; drop your log file here</p>
-              <p class="drop-text-sub">or click to browse</p>
-              <label class="btn-browse" for="logfile">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                  <polyline points="14 2 14 8 20 8"></polyline>
-                </svg>
-                Browse File
-              </label>
-              <p class="drop-hint">Supports: .log &nbsp;.txt &nbsp;• &nbsp;Max 200 KB</p>
-              <input type="file" id="logfile" name="logfile" accept=".log,.txt" required>
-            </div>
-            <!-- Supported rippers -->
-            <div class="supported-rippers">
-              <span class="supported-title">Supported Rippers</span>
-              <ul class="ripper-list">
-                <li>
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
-                    stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="20 6 9 17 4 12"></polyline>
-                  </svg>EAC (Exact Audio Copy)</li>
-                <li>
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
-                    stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="20 6 9 17 4 12"></polyline>
-                  </svg>XLD</li>
-                <li>
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
-                    stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="20 6 9 17 4 12"></polyline>
-                  </svg>dBpoweramp</li>
-                <li>
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
-                    stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="20 6 9 17 4 12"></polyline>
-                  </svg>Whipper</li>
-              </ul>
-            </div>
-          </div>
-          <div class="file-selected-name" id="file-selected-name"></div>
-        </div>
-        <button type="submit" class="btn-analyze" id="btn-analyze">
-          <span>
-            Analyze Log
-            <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-              stroke-linecap="round" stroke-linejoin="round">
-              <line x1="5" y1="12" x2="19" y2="12"></line>
-              <polyline points="12 5 19 12 12 19"></polyline>
-            </svg>
-          </span>
-        </button>
-      </form>
+      {{template "upload-form"}}
     </div>
     {{end}}
 

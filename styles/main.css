@@ -1224,50 +1224,39 @@ body {
 /* ============================================
    Log span colors — Dark mode (base)
    ============================================ */
-.log-output-container .log1 { color: #ff7b9a; }  /* EAC header — pink/magenta */
-.log-output-container .log2 { color: #ffa657; }  /* date/subheader — orange */
-.log-output-container .log3 { color: #58a6ff; }  /* info lines — blue */
-.log-output-container .log4 { color: #e6edf3; }  /* default text — near-white */
-.log-output-container .log5 { color: #8b949e; }  /* secondary — gray */
-.log-output-container .good    { color: #3fb950; } /* OK value — green */
-.log-output-container .bad     { color: #f85149; } /* bad value — red */
-.log-output-container .goodish { color: #56d364; } /* tolerated good — lime */
-.log-output-container .badish  { color: #d29922; } /* tolerated bad — amber */
-
-.log-modal-body .log1 { color: #ff7b9a; }
-.log-modal-body .log2 { color: #ffa657; }
-.log-modal-body .log3 { color: #58a6ff; }
-.log-modal-body .log4 { color: #e6edf3; }
-.log-modal-body .log5 { color: #8b949e; }
-.log-modal-body .good    { color: #3fb950; }
-.log-modal-body .bad     { color: #f85149; }
-.log-modal-body .goodish { color: #56d364; }
-.log-modal-body .badish  { color: #d29922; }
+.log-output-container .log1, .log-modal-body .log1 { color: #ff7b9a; }
+.log-output-container .log2, .log-modal-body .log2 { color: #ffa657; }
+.log-output-container .log3, .log-modal-body .log3 { color: #58a6ff; }
+.log-output-container .log4, .log-modal-body .log4 { color: #e6edf3; }
+.log-output-container .log5, .log-modal-body .log5 { color: #8b949e; }
+.log-output-container .good, .log-modal-body .good       { color: #3fb950; }
+.log-output-container .bad, .log-modal-body .bad         { color: #f85149; }
+.log-output-container .goodish, .log-modal-body .goodish { color: #56d364; }
+.log-output-container .badish, .log-modal-body .badish   { color: #d29922; }
 
 /* ============================================
    Light-mode log color overrides
    ============================================ */
+[data-theme="light"] .log-output-container,
 [data-theme="light"] .log-modal-body { color: #1f2328; }
+[data-theme="light"] .log-output-container .log1,
 [data-theme="light"] .log-modal-body .log1 { color: #7c3aed; }
+[data-theme="light"] .log-output-container .log2,
 [data-theme="light"] .log-modal-body .log2 { color: #b45309; }
+[data-theme="light"] .log-output-container .log3,
 [data-theme="light"] .log-modal-body .log3 { color: #2563eb; }
+[data-theme="light"] .log-output-container .log4,
 [data-theme="light"] .log-modal-body .log4 { color: #1f2328; }
+[data-theme="light"] .log-output-container .log5,
 [data-theme="light"] .log-modal-body .log5 { color: #374151; }
+[data-theme="light"] .log-output-container .good,
 [data-theme="light"] .log-modal-body .good { color: #1a7f37; }
+[data-theme="light"] .log-output-container .bad,
 [data-theme="light"] .log-modal-body .bad  { color: #cf222e; }
+[data-theme="light"] .log-output-container .goodish,
 [data-theme="light"] .log-modal-body .goodish { color: #2da44e; }
+[data-theme="light"] .log-output-container .badish,
 [data-theme="light"] .log-modal-body .badish  { color: #9a6700; }
-
-[data-theme="light"] .log-output-container { color: #1f2328; }
-[data-theme="light"] .log-output-container .log1 { color: #7c3aed; }
-[data-theme="light"] .log-output-container .log2 { color: #b45309; }
-[data-theme="light"] .log-output-container .log3 { color: #2563eb; }
-[data-theme="light"] .log-output-container .log4 { color: #1f2328; }
-[data-theme="light"] .log-output-container .log5 { color: #374151; }
-[data-theme="light"] .log-output-container .good { color: #1a7f37; }
-[data-theme="light"] .log-output-container .bad  { color: #cf222e; }
-[data-theme="light"] .log-output-container .goodish { color: #2da44e; }
-[data-theme="light"] .log-output-container .badish  { color: #9a6700; }
 
 .log-output-container .loading-pulse {
   display: inline-block;
