@@ -630,6 +630,10 @@ body {
   color: var(--accent-green);
 }
 
+.summary-value.val-checksum-invalid {
+  color: var(--danger-text);
+}
+
 /* Score lives in the sidebar ring — hide its summary row */
 .summary-item[data-key="score"] { display: none; }
 

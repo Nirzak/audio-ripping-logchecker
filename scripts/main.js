@@ -105,6 +105,8 @@ document.addEventListener("DOMContentLoaded", function() {
   const outputContainer = document.getElementById("output-container");
 
   // Build line-numbered rows from a fetched log HTML document string.
+  // Handles multi-line <span> tags (e.g. XLD signature wrapped in a single
+  // <span class='good'>) by carrying open spans across line boundaries.
   function buildLogLines(container, docString) {
     let body = docString;
     try {
@@ -115,7 +117,31 @@ document.addEventListener("DOMContentLoaded", function() {
 
     const lines = body.replace(/\n$/, "").split("\n");
     const frag = document.createDocumentFragment();
+    const tagRe = /<(\/?)(span)([^>]*)>/gi;
+    let openSpans = []; // stack of opening span tag strings carried forward
+
     lines.forEach((line, i) => {
+      // Prefix: re-open any spans still open from previous lines
+      const prefix = openSpans.join("");
+
+      // Scan the *original* line (without prefix) to update the span stack
+      const nextOpenSpans = openSpans.slice(); // copy current state
+      let m;
+      tagRe.lastIndex = 0;
+      while ((m = tagRe.exec(line)) !== null) {
+        if (m[1] === "/") {
+          // closing tag — pops the most recent open span
+          if (nextOpenSpans.length > 0) nextOpenSpans.pop();
+        } else {
+          // opening tag — push the full tag string
+          nextOpenSpans.push(m[0]);
+        }
+      }
+
+      // Suffix: close any spans still open so this line is self-contained HTML
+      const suffix = "</span>".repeat(nextOpenSpans.length);
+      const fullLine = prefix + line + suffix;
+
       const row = document.createElement("div");
       row.className = "log-line";
       const ln = document.createElement("span");
@@ -123,11 +149,14 @@ document.addEventListener("DOMContentLoaded", function() {
       ln.textContent = i + 1;
       const lc = document.createElement("span");
       lc.className = "lc";
-      lc.innerHTML = line === "" ? "&nbsp;" : line;
+      lc.innerHTML = fullLine === "" ? "&nbsp;" : fullLine;
       lc._orig = lc.innerHTML;
       row.appendChild(ln);
       row.appendChild(lc);
       frag.appendChild(row);
+
+      // Carry forward open spans to the next line
+      openSpans = nextOpenSpans;
     });
     container.innerHTML = "";
     container.appendChild(frag);

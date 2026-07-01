@@ -235,7 +235,7 @@
                     </div>
                     <div class="summary-info">
                       <span class="summary-key">{{getLabel .Key}}</span>
-                      <span class="summary-value {{if eq .Key "checksum_state"}}val-checksum{{end}}">{{.Value}}</span>
+                      <span class="summary-value {{if eq .Key "checksum_state"}}val-checksum{{end}} {{if eq .Value "checksum_invalid"}}val-checksum-invalid{{end}}">{{.Value}}</span>
                     </div>
                   </div>
                   {{end}}
