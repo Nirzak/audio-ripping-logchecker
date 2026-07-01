@@ -18,6 +18,10 @@ const (
 	defaultPort     = "5050"
 	defaultRPS      = 0.5 // 30 req/min
 	defaultBurst    = 10
+	// discLookupTimeout bounds the concurrent AccurateRip + gnudb database
+	// lookups run during a log check. Kept under the server's 30s WriteTimeout
+	// so a slow database never stalls the response.
+	discLookupTimeout = 8 * time.Second
 )
 
 // Config holds all runtime configuration derived from environment variables.

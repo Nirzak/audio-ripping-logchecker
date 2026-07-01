@@ -102,6 +102,7 @@ type pageData struct {
 	Subpath  string
 	Error    string
 	Summary  []summaryItem
+	DiscIDs  []discID
 	Details  []string
 	ResultID string
 }
@@ -247,6 +248,7 @@ func (s *server) handleUpload(w http.ResponseWriter, r *http.Request, data *page
 	s.store.set(id, buildResultHTML(sanitizeHTML(htmlLog), s.cfg.AppRoot))
 
 	data.Summary = resultToSummary(res)
+	data.DiscIDs = res.DiscIDs
 	data.Details = res.Details
 	data.ResultID = id
 	s.render(w, *data)
@@ -254,7 +256,6 @@ func (s *server) handleUpload(w http.ResponseWriter, r *http.Request, data *page
 
 // handleAPI handles POST /api — returns JSON.
 func (s *server) handleAPI(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
 	if r.Method != http.MethodPost {
 		jsonError(w, "Method Not Allowed", http.StatusMethodNotAllowed)
 		return
@@ -283,7 +284,7 @@ func (s *server) handleAPI(w http.ResponseWriter, r *http.Request) {
 	}
 
 	s.logger.Info("API: analysis complete", "ip", ip, "file", safeLog, "score", res.Score)
-	json.NewEncoder(w).Encode(res) //nolint:errcheck
+	writeJSON(w, http.StatusOK, res.toAPIResult())
 }
 
 // handleResult handles GET /result/<id> — serves a one-shot pre-rendered HTML result.
@@ -419,10 +420,20 @@ func clientIP(r *http.Request) string {
 	return sanitizeForLog(addr)
 }
 
+// writeJSON writes v as pretty-printed (2-space indented) JSON with the given
+// status code, so responses are readable when inspected via curl or a browser.
+func writeJSON(w http.ResponseWriter, code int, v interface{}) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(code)
+	enc := json.NewEncoder(w)
+	enc.SetIndent("", "  ")
+	enc.SetEscapeHTML(false)
+	enc.Encode(v) //nolint:errcheck
+}
+
 // jsonError writes a JSON error response.
 func jsonError(w http.ResponseWriter, msg string, code int) {
-	w.WriteHeader(code)
-	json.NewEncoder(w).Encode(map[string]string{"error": msg}) //nolint:errcheck
+	writeJSON(w, code, map[string]string{"error": msg})
 }
 
 // buildResultHTML wraps sanitized log output in a minimal standalone HTML page.

@@ -70,6 +70,7 @@ func main() {
 	register("/style.css", serveFile(assetPath(baseDir, filepath.Join("styles", "log.css"))))
 	register("/main.css", serveFile(assetPath(baseDir, filepath.Join("styles", "main.css"))))
 	register("/main.js", serveFile(assetPath(baseDir, filepath.Join("scripts", "main.js"))))
+	register("/logo.png", serveFile(assetPath(baseDir, filepath.Join("styles", "logo.png"))))
 
 	addr := "0.0.0.0:" + cfg.Port
 	log.Info("starting logchecker",
@@ -96,12 +97,23 @@ func main() {
 // loadTemplate parses the index.html template from baseDir/templates/.
 func loadTemplate(baseDir string) (*template.Template, error) {
 	funcMap := template.FuncMap{
-		"capitalize": func(s string) string {
-			s = strings.ReplaceAll(s, "_", " ")
-			if s == "" {
-				return s
+		"getLabel": func(key string) string {
+			switch key {
+			case "ripper":
+				return "Ripper"
+			case "ripper_version":
+				return "Version"
+			case "language":
+				return "Language"
+			case "checksum_state":
+				return "Checksum"
+			case "combined_log":
+				return "Combined Log"
+			case "rdbarr_rip":
+				return "Rdbarr Rip"
+			default:
+				return strings.Title(strings.ReplaceAll(key, "_", " "))
 			}
-			return strings.ToUpper(s[:1]) + s[1:]
 		},
 	}
 	p := filepath.Join(baseDir, "templates", "index.html")

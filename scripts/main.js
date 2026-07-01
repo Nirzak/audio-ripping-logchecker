@@ -11,12 +11,14 @@ document.addEventListener("DOMContentLoaded", function() {
     html.setAttribute("data-theme", "light");
   }
 
-  toggle.addEventListener("click", function() {
-    const current = html.getAttribute("data-theme");
-    const next = current === "dark" ? "light" : "dark";
-    html.setAttribute("data-theme", next);
-    localStorage.setItem("logchecker-theme", next);
-  });
+  if (toggle) {
+    toggle.addEventListener("click", function() {
+      const current = html.getAttribute("data-theme");
+      const next = current === "dark" ? "light" : "dark";
+      html.setAttribute("data-theme", next);
+      localStorage.setItem("logchecker-theme", next);
+    });
+  }
 
   /* ---- File Input UX ---- */
   const dropZone = document.getElementById("file-drop-zone");
@@ -59,8 +61,107 @@ document.addEventListener("DOMContentLoaded", function() {
     });
   }
 
-  /* ---- Load Result ---- */
+  /* ---- Score Ring ----
+     Score is rendered server-side as a hidden summary item; relocate its value
+     into the sidebar ring. The gradient fill shows the earned portion; a red
+     "deducted" ring underneath reveals itself as points are lost. At 0 or
+     below the ring is fully red. */
+  (function initScoreRing() {
+    const scoreEl = document.querySelector('#summary-grid [data-key="score"] .summary-value');
+    const numEl = document.getElementById("score-number");
+    const ring = document.getElementById("score-ring-fill");
+    const redRing = document.getElementById("score-ring-deducted");
+    if (!scoreEl || !numEl || !ring) return;
+
+    const s = parseInt(scoreEl.textContent.trim(), 10);
+    if (Number.isNaN(s)) return;
+
+    const labelEl = document.getElementById("score-label");
+    const descEl = document.getElementById("score-desc");
+    const pct = Math.max(0, Math.min(100, s));
+
+    numEl.textContent = s;
+    ring.style.setProperty("--score-pct", pct);
+
+    // Show red deducted ring when score is below 100
+    if (redRing && s < 100) {
+      redRing.style.strokeDashoffset = "0"; // full red circle behind gradient
+    }
+
+    if (s <= 0) {
+      ring.classList.add("neg");
+      numEl.classList.add("neg");
+    }
+    if (s === 100) {
+      if (labelEl) labelEl.textContent = "Perfect Rip!";
+      if (descEl) descEl.textContent = "This extraction is verified and accurate.";
+    } else {
+      if (labelEl) labelEl.textContent = "";
+      if (descEl) descEl.textContent = "";
+    }
+  })();
+
+  /* ---- Log viewer: line numbers, search, word-wrap ---- */
   const outputContainer = document.getElementById("output-container");
+
+  // Build line-numbered rows from a fetched log HTML document string.
+  // Handles multi-line <span> tags (e.g. XLD signature wrapped in a single
+  // <span class='good'>) by carrying open spans across line boundaries.
+  function buildLogLines(container, docString) {
+    let body = docString;
+    try {
+      const doc = new DOMParser().parseFromString(docString, "text/html");
+      const pre = doc.querySelector("pre");
+      if (pre) body = pre.innerHTML;
+    } catch (e) { /* fall back to raw string */ }
+
+    const lines = body.replace(/\n$/, "").split("\n");
+    const frag = document.createDocumentFragment();
+    const tagRe = /<(\/?)(span)([^>]*)>/gi;
+    let openSpans = []; // stack of opening span tag strings carried forward
+
+    lines.forEach((line, i) => {
+      // Prefix: re-open any spans still open from previous lines
+      const prefix = openSpans.join("");
+
+      // Scan the *original* line (without prefix) to update the span stack
+      const nextOpenSpans = openSpans.slice(); // copy current state
+      let m;
+      tagRe.lastIndex = 0;
+      while ((m = tagRe.exec(line)) !== null) {
+        if (m[1] === "/") {
+          // closing tag — pops the most recent open span
+          if (nextOpenSpans.length > 0) nextOpenSpans.pop();
+        } else {
+          // opening tag — push the full tag string
+          nextOpenSpans.push(m[0]);
+        }
+      }
+
+      // Suffix: close any spans still open so this line is self-contained HTML
+      const suffix = "</span>".repeat(nextOpenSpans.length);
+      const fullLine = prefix + line + suffix;
+
+      const row = document.createElement("div");
+      row.className = "log-line";
+      const ln = document.createElement("span");
+      ln.className = "ln";
+      ln.textContent = i + 1;
+      const lc = document.createElement("span");
+      lc.className = "lc";
+      lc.innerHTML = fullLine === "" ? "&nbsp;" : fullLine;
+      lc._orig = lc.innerHTML;
+      row.appendChild(ln);
+      row.appendChild(lc);
+      frag.appendChild(row);
+
+      // Carry forward open spans to the next line
+      openSpans = nextOpenSpans;
+    });
+    container.innerHTML = "";
+    container.appendChild(frag);
+  }
+
   if (outputContainer) {
     const resultId = outputContainer.getAttribute("data-result-id");
     const rawSubpath = outputContainer.getAttribute("data-subpath") || '';
@@ -70,12 +171,104 @@ document.addEventListener("DOMContentLoaded", function() {
     fetch(resultUrl)
       .then(response => response.text())
       .then(data => {
-        outputContainer.innerHTML = data;
+        buildLogLines(outputContainer, data);
+        applyWrap();
       })
       .catch(error => {
         outputContainer.innerHTML = '<span style="color:var(--danger-text)">Error loading output. Please try again.</span>';
       });
   }
+
+  /* ---- Word-wrap toggle ---- */
+  const wrapToggle = document.getElementById("wrap-toggle");
+  const modalBodyEl = document.getElementById("log-modal-body");
+
+  function applyWrap() {
+    const nowrap = wrapToggle && !wrapToggle.checked;
+    if (outputContainer) outputContainer.classList.toggle("nowrap", nowrap);
+    if (modalBodyEl) modalBodyEl.classList.toggle("nowrap", nowrap);
+  }
+  if (wrapToggle) {
+    wrapToggle.addEventListener("change", applyWrap);
+    applyWrap();
+  }
+
+  /* ---- Search in report ---- */
+  const searchInput = document.getElementById("log-search");
+
+  function escapeRegExp(str) {
+    return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  }
+
+  // Wrap matches of `re` in <mark> within text nodes only (preserves coloring spans).
+  function highlightLine(lc, re) {
+    const walker = document.createTreeWalker(lc, NodeFilter.SHOW_TEXT, null);
+    const targets = [];
+    let node;
+    while ((node = walker.nextNode())) {
+      re.lastIndex = 0;
+      if (re.test(node.nodeValue)) targets.push(node);
+    }
+    targets.forEach(textNode => {
+      re.lastIndex = 0;
+      const span = document.createElement("span");
+      span.innerHTML = textNode.nodeValue.replace(re, m => "<mark>" + m + "</mark>");
+      textNode.parentNode.replaceChild(span, textNode);
+    });
+  }
+
+  if (searchInput && outputContainer) {
+    searchInput.addEventListener("input", function() {
+      const q = searchInput.value.trim();
+      const rows = outputContainer.querySelectorAll(".log-line");
+      if (!q) {
+        rows.forEach(row => {
+          row.classList.remove("dim");
+          const lc = row.querySelector(".lc");
+          if (lc && lc._orig != null) lc.innerHTML = lc._orig;
+        });
+        return;
+      }
+      const re = new RegExp(escapeRegExp(q), "gi");
+      rows.forEach(row => {
+        const lc = row.querySelector(".lc");
+        if (!lc) return;
+        lc.innerHTML = lc._orig;            // clear previous marks
+        re.lastIndex = 0;
+        const matches = re.test(lc.textContent);
+        if (matches) {
+          row.classList.remove("dim");
+          re.lastIndex = 0;
+          highlightLine(lc, re);
+        } else {
+          row.classList.add("dim");
+        }
+      });
+    });
+  }
+
+  /* ---- Copy disc IDs ---- */
+  document.querySelectorAll(".discid-copy").forEach(btn => {
+    btn.addEventListener("click", function() {
+      const val = btn.getAttribute("data-copy") || "";
+      const done = () => {
+        btn.classList.add("copied");
+        setTimeout(() => btn.classList.remove("copied"), 1200);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(val).then(done).catch(() => {});
+      } else {
+        const ta = document.createElement("textarea");
+        ta.value = val;
+        ta.style.position = "fixed";
+        ta.style.opacity = "0";
+        document.body.appendChild(ta);
+        ta.select();
+        try { document.execCommand("copy"); done(); } catch (e) { /* noop */ }
+        document.body.removeChild(ta);
+      }
+    });
+  });
 
   /* ---- Log Modal ---- */
   const btnExpand = document.getElementById("btn-expand");
@@ -87,6 +280,7 @@ document.addEventListener("DOMContentLoaded", function() {
   function openLogModal() {
     if (outputContainer && logModalBody) {
       logModalBody.innerHTML = outputContainer.innerHTML;
+      logModalBody.classList.toggle("nowrap", outputContainer.classList.contains("nowrap"));
     }
     logModal.classList.add("open");
     logModalBackdrop.classList.add("open");
