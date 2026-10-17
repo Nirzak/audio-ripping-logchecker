@@ -32,6 +32,14 @@ Analyze log files programmatically via POST:
 curl -X POST http://localhost:5050/api -F "logfile=@my_log.log"
 ```
 
+Or send the log as text in the `logtext` field (multipart or URL-encoded):
+
+```bash
+curl -X POST http://localhost:5050/api -F "logtext=<my_log.log"
+```
+
+Send exactly one of `logfile` or `logtext`. `logtext` must be UTF-8, so send UTF-16 EAC logs as `logfile`. Either way the log is limited to 200 KB, and logs containing HTML markup are rejected.
+
 **Response (JSON):**
 ```json
 {

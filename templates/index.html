@@ -2,25 +2,58 @@
       <form method="post" enctype="multipart/form-data" id="upload-form">
         <div class="card upload-card animate-in">
           <div class="upload-card-body">
-            <!-- Drop zone -->
-            <div class="file-drop-zone" id="file-drop-zone">
-              <svg class="drop-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
-                stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="16 16 12 12 8 16"></polyline>
-                <line x1="12" y1="12" x2="12" y2="21"></line>
-                <path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"></path>
-              </svg>
-              <p class="drop-text-main">Drag &amp; drop your log file here</p>
-              <p class="drop-text-sub">or click to browse</p>
-              <label class="btn-browse" for="logfile">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                  <polyline points="14 2 14 8 20 8"></polyline>
+            <div class="input-panel">
+              <!-- Input method switch (enabled by main.js; without JS only the file input is shown) -->
+              <div class="input-tabs" role="tablist" aria-label="How to submit your log" id="input-tabs" hidden>
+                <button type="button" class="input-tab" role="tab" id="tab-file" data-mode="file"
+                  aria-controls="file-drop-zone" aria-selected="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                  </svg>
+                  Upload file
+                </button>
+                <button type="button" class="input-tab" role="tab" id="tab-text" data-mode="text"
+                  aria-controls="paste-zone" aria-selected="false" tabindex="-1">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+                    <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+                  </svg>
+                  Paste text
+                </button>
+              </div>
+              <!-- Drop zone -->
+              <div class="file-drop-zone" id="file-drop-zone">
+                <svg class="drop-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="16 16 12 12 8 16"></polyline>
+                  <line x1="12" y1="12" x2="12" y2="21"></line>
+                  <path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"></path>
                 </svg>
-                Browse File
-              </label>
-              <p class="drop-hint">Supports: .log &nbsp;.txt &nbsp;• &nbsp;Max 200 KB</p>
-              <input type="file" id="logfile" name="logfile" accept=".log,.txt" required>
+                <p class="drop-text-main">Drag &amp; drop your log file here</p>
+                <p class="drop-text-sub">or click to browse</p>
+                <label class="btn-browse" for="logfile">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                  </svg>
+                  Browse File
+                </label>
+                <p class="drop-hint">Supports: .log &nbsp;.txt &nbsp;• &nbsp;Max 200 KB</p>
+                <input type="file" id="logfile" name="logfile" accept=".log,.txt" required>
+              </div>
+              <!-- Paste zone -->
+              <div class="paste-zone" id="paste-zone" role="tabpanel" aria-labelledby="tab-text" hidden>
+                <label class="visually-hidden" for="logtext">Log text</label>
+                <textarea id="logtext" name="logtext" class="paste-input" disabled
+                  placeholder="Paste the full contents of your rip log here&#8230;"
+                  spellcheck="false" autocomplete="off" autocapitalize="off" autocorrect="off" wrap="off"
+                  aria-describedby="paste-count"></textarea>
+                <div class="paste-meta">
+                  <span class="paste-count" id="paste-count">Max 200 KB &nbsp;&#8226;&nbsp; Paste the whole log, unedited</span>
+                  <button type="button" class="paste-clear" id="paste-clear" hidden>Clear</button>
+                </div>
+              </div>
             </div>
             <!-- Supported rippers -->
             <div class="supported-rippers">

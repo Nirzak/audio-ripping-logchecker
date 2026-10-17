@@ -61,6 +61,190 @@ document.addEventListener("DOMContentLoaded", function() {
     });
   }
 
+  /* ---- Input method: upload a file or paste text ----
+     Only the active input is enabled, so exactly one of "logfile" / "logtext"
+     is submitted. Without JS the tabs stay hidden and the form is a plain file
+     upload. The pasted text is only ever sent to the server as form data; it is
+     never inserted into this page as HTML. */
+  const MAX_LOG_BYTES = 200 * 1024;
+  const MODE_KEY = "logchecker-input-mode";
+  const DRAFT_KEY = "logchecker-paste-draft";
+  const uploadForm = document.getElementById("upload-form");
+  const inputTabs = document.getElementById("input-tabs");
+  const pasteZone = document.getElementById("paste-zone");
+  const logText = document.getElementById("logtext");
+  const pasteCount = document.getElementById("paste-count");
+  const pasteClear = document.getElementById("paste-clear");
+  const btnAnalyze = document.getElementById("btn-analyze");
+  const inputTabsReady = !!(uploadForm && inputTabs && dropZone && fileInput && pasteZone && logText && pasteCount && pasteClear);
+  const tabs = inputTabsReady ? Array.from(inputTabs.querySelectorAll('[role="tab"]')) : [];
+  const pasteHint = pasteCount ? pasteCount.textContent : "";
+  let mode = "file";
+
+  // Storage can throw (private mode, blocked site data); it is only a convenience.
+  function storageGet(store, key) {
+    try { return store.getItem(key); } catch (e) { return null; }
+  }
+  function storageSet(store, key, value) {
+    try {
+      if (value === null) store.removeItem(key); else store.setItem(key, value);
+    } catch (e) { /* noop */ }
+  }
+
+  // Size as the server receives it: browsers submit textarea newlines as CRLF.
+  function submittedBytes(text) {
+    return new TextEncoder().encode(text.replace(/\r?\n/g, "\r\n")).length;
+  }
+
+  function formatSize(bytes) {
+    if (bytes < 1024) return bytes + " B";
+    const kb = bytes / 1024;
+    return (kb < 10 ? kb.toFixed(1) : Math.round(kb)) + " KB";
+  }
+
+  function updatePasteMeta() {
+    const text = logText.value;
+    let over = false;
+    if (text === "") {
+      pasteCount.textContent = pasteHint;
+    } else {
+      const bytes = submittedBytes(text);
+      const lines = text.split(/\r\n|\r|\n/).length;
+      over = bytes > MAX_LOG_BYTES;
+      pasteCount.textContent = lines.toLocaleString() + (lines === 1 ? " line" : " lines") +
+        " \u2022 " + formatSize(bytes) + " / 200 KB" + (over ? " \u2014 too large" : "");
+    }
+    pasteZone.classList.toggle("over", over);
+    pasteClear.hidden = text === "";
+    if (btnAnalyze) btnAnalyze.disabled = over;
+  }
+
+  function setMode(next) {
+    mode = next === "text" ? "text" : "file";
+    const isText = mode === "text";
+    tabs.forEach(tab => {
+      const selected = tab.dataset.mode === mode;
+      tab.setAttribute("aria-selected", String(selected));
+      tab.tabIndex = selected ? 0 : -1;
+    });
+    dropZone.hidden = isText;
+    pasteZone.hidden = !isText;
+    fileInput.disabled = isText;
+    fileInput.required = !isText;
+    logText.disabled = !isText;
+    logText.required = isText;
+    if (fileNameEl) fileNameEl.classList.toggle("visible", !isText && fileInput.files.length > 0);
+    if (isText) {
+      updatePasteMeta();
+    } else if (btnAnalyze) {
+      btnAnalyze.disabled = false;
+    }
+    storageSet(localStorage, MODE_KEY, mode);
+  }
+
+  function setFile(file) {
+    const dt = new DataTransfer();
+    dt.items.add(file);
+    fileInput.files = dt.files;
+    setMode("file");
+    fileInput.dispatchEvent(new Event("change"));
+  }
+
+  function setText(text) {
+    setMode("text");
+    logText.value = text;
+    updatePasteMeta();
+    logText.focus();
+    logText.setSelectionRange(0, 0);
+    logText.scrollTop = 0;
+  }
+
+  if (inputTabsReady) {
+    inputTabs.hidden = false;
+    dropZone.setAttribute("role", "tabpanel");
+    dropZone.setAttribute("aria-labelledby", "tab-file");
+
+    // A failed paste submission re-renders the page with an error; restore the
+    // text so it isn't lost. The draft is dropped on every load either way.
+    const draft = storageGet(sessionStorage, DRAFT_KEY);
+    storageSet(sessionStorage, DRAFT_KEY, null);
+    if (draft && document.getElementById("error-alert")) {
+      logText.value = draft;
+      setMode("text");
+    } else {
+      setMode(storageGet(localStorage, MODE_KEY));
+    }
+
+    tabs.forEach((tab, i) => {
+      tab.addEventListener("click", () => {
+        setMode(tab.dataset.mode);
+        if (mode === "text") logText.focus();
+      });
+      // Arrow / Home / End move between tabs (WAI-ARIA tabs pattern).
+      tab.addEventListener("keydown", e => {
+        let j = -1;
+        if (e.key === "ArrowRight") j = (i + 1) % tabs.length;
+        else if (e.key === "ArrowLeft") j = (i - 1 + tabs.length) % tabs.length;
+        else if (e.key === "Home") j = 0;
+        else if (e.key === "End") j = tabs.length - 1;
+        if (j === -1) return;
+        e.preventDefault();
+        setMode(tabs[j].dataset.mode);
+        tabs[j].focus();
+      });
+    });
+
+    logText.addEventListener("input", updatePasteMeta);
+
+    pasteClear.addEventListener("click", () => {
+      logText.value = "";
+      updatePasteMeta();
+      logText.focus();
+    });
+
+    // Dropping a file on the paste box switches to file upload instead of
+    // letting the browser open the file.
+    pasteZone.addEventListener("dragover", e => {
+      if (e.dataTransfer && Array.from(e.dataTransfer.types).includes("Files")) e.preventDefault();
+    });
+    pasteZone.addEventListener("drop", e => {
+      if (!e.dataTransfer || e.dataTransfer.files.length === 0) return;
+      e.preventDefault();
+      setFile(e.dataTransfer.files[0]);
+    });
+
+    // Paste anywhere on the page (outside a text field) to fill the form:
+    // a copied .log/.txt file selects it, copied text goes to the paste box.
+    document.addEventListener("paste", e => {
+      const t = e.target;
+      if (t instanceof HTMLInputElement || t instanceof HTMLTextAreaElement || (t && t.isContentEditable)) return;
+      if (document.querySelector(".log-modal.open")) return;
+      const dt = e.clipboardData;
+      if (!dt) return;
+      const logFile = Array.from(dt.files).find(f => /\.(log|txt)$/i.test(f.name));
+      if (logFile) {
+        e.preventDefault();
+        setFile(logFile);
+        return;
+      }
+      const text = dt.getData("text/plain");
+      if (text.trim() !== "") {
+        e.preventDefault();
+        setText(text);
+      }
+    });
+
+    uploadForm.addEventListener("submit", e => {
+      if (mode !== "text") return;
+      if (submittedBytes(logText.value) > MAX_LOG_BYTES) {
+        e.preventDefault();
+        updatePasteMeta();
+        return;
+      }
+      storageSet(sessionStorage, DRAFT_KEY, logText.value);
+    });
+  }
+
   /* ---- Score Ring ----
      Score is rendered server-side as a hidden summary item; relocate its value
      into the sidebar ring. The gradient fill shows the earned portion; a red
@@ -201,6 +385,8 @@ document.addEventListener("DOMContentLoaded", function() {
   }
 
   // Wrap matches of `re` in <mark> within text nodes only (preserves coloring spans).
+  // Built with DOM nodes, never innerHTML: a text node's value is decoded log
+  // text, so "&lt;img&gt;" in the log would otherwise become a live <img>.
   function highlightLine(lc, re) {
     const walker = document.createTreeWalker(lc, NodeFilter.SHOW_TEXT, null);
     const targets = [];
@@ -210,10 +396,20 @@ document.addEventListener("DOMContentLoaded", function() {
       if (re.test(node.nodeValue)) targets.push(node);
     }
     targets.forEach(textNode => {
+      const text = textNode.nodeValue;
+      const frag = document.createDocumentFragment();
+      let last = 0;
+      let m;
       re.lastIndex = 0;
-      const span = document.createElement("span");
-      span.innerHTML = textNode.nodeValue.replace(re, m => "<mark>" + m + "</mark>");
-      textNode.parentNode.replaceChild(span, textNode);
+      while ((m = re.exec(text)) !== null) {
+        frag.appendChild(document.createTextNode(text.slice(last, m.index)));
+        const mark = document.createElement("mark");
+        mark.textContent = m[0];
+        frag.appendChild(mark);
+        last = m.index + m[0].length;
+      }
+      frag.appendChild(document.createTextNode(text.slice(last)));
+      textNode.parentNode.replaceChild(frag, textNode);
     });
   }
 

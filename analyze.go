@@ -15,49 +15,108 @@ import (
 )
 
 // ---------------------------------------------------------------------------
-// HTML sanitisation — allowlist approach (RE2 has no lookahead support)
+// HTML sanitisation — escape everything, re-emit an exact allowlist
 // ---------------------------------------------------------------------------
-
-// reAnyTag matches any HTML open/close tag, capturing:
 //
-//	m[1] = "/" for closing tags, "" for opening
-//	m[2] = tag name
-//	m[3] = raw attribute string (empty for closing tags)
-var reAnyTag = regexp.MustCompile(`(?i)<(/?)(\w+)([^>]*)>`)
+// The logchecker library returns the log text with its own <span class="...">
+// markup mixed in, and it does not HTML-escape the log text itself. Whatever a
+// user puts in a log (file or pasted text) therefore reaches this function as
+// raw HTML. Instead of stripping "bad" tags, sanitizeHTML escapes every byte of
+// markup and re-emits only the handful of tags the library actually produces,
+// rebuilt from scratch with no attributes other than a known-class list.
 
-// reUnsafeAttrs matches event handlers and navigation-related attributes
-// that must be stripped from allowed tags.
-var reUnsafeAttrs = regexp.MustCompile(`(?i)\s(?:on\w+|href|src|action|formaction|data-\S*)=[^\s>]*`)
+// reAllowedOpen matches, at the start of the input, an opening tag the library
+// emits: m[1] = tag name, m[2] or m[3] = class list (double / single quoted).
+var reAllowedOpen = regexp.MustCompile(`^<(span|div|p|strong|em|br)(?:\s+class\s*=\s*(?:"([a-z0-9 ]*)"|'([a-z0-9 ]*)'))?\s*/?>`)
 
-// allowedTags is the set of HTML tags that the logchecker library may emit
-// and that are safe to pass through to the browser.
-var allowedTags = map[string]bool{
-	"span": true, "div": true, "p": true,
-	"strong": true, "em": true, "br": true,
+// reAllowedClose matches, at the start of the input, a closing tag.
+var reAllowedClose = regexp.MustCompile(`^</(span|div|p|strong|em)\s*>`)
+
+// allowedClasses is every CSS class the library and this server emit.
+var allowedClasses = map[string]bool{
+	"good": true, "goodish": true, "bad": true, "badish": true,
+	"log1": true, "log2": true, "log3": true, "log4": true, "log5": true,
 }
 
-// sanitizeHTML strips every tag that is not in allowedTags and removes unsafe
-// attributes from the tags that remain.
-//
-// The original negative-lookahead regex ((?i)<(?!/?(span|…)(\s|>))[^>]*>)
-// panics at startup because Go's RE2 engine does not support lookaheads.
-// This function achieves the same result without lookaheads.
+// reMarkup matches anything sanitizeHTML could mistake for library markup.
+// Real rip logs never contain these, so a log that does is refused up front:
+// otherwise it could colour its own lines "good" in the rendered report.
+var reMarkup = regexp.MustCompile(`(?i)</?(?:span|div|p|strong|em|br)[\s/>]`)
+
+// containsMarkup reports whether log text contains HTML-like tags.
+func containsMarkup(text string) bool {
+	return reMarkup.MatchString(text)
+}
+
+// sanitizeHTML returns raw as safe HTML: text is escaped, allowlisted tags are
+// rebuilt canonically, stray closing tags are dropped and any tags left open
+// are closed at the end.
 func sanitizeHTML(raw string) string {
-	return reAnyTag.ReplaceAllStringFunc(raw, func(tag string) string {
-		m := reAnyTag.FindStringSubmatch(tag)
-		if m == nil {
-			return ""
+	var b strings.Builder
+	b.Grow(len(raw) + len(raw)/8)
+	var open []string // stack of open tag names
+
+	for i := 0; i < len(raw); {
+		switch raw[i] {
+		case '<':
+			rest := raw[i:]
+			if m := reAllowedOpen.FindStringSubmatch(rest); m != nil {
+				if tag, ok := canonicalOpenTag(m[1], m[2]+m[3]); ok {
+					b.WriteString(tag)
+					if m[1] != "br" {
+						open = append(open, m[1])
+					}
+					i += len(m[0])
+					continue
+				}
+			} else if m := reAllowedClose.FindStringSubmatch(rest); m != nil {
+				open = closeTag(&b, open, m[1])
+				i += len(m[0])
+				continue
+			}
+			b.WriteString("&lt;")
+		case '>':
+			b.WriteString("&gt;")
+		case '&':
+			b.WriteString("&amp;")
+		default:
+			b.WriteByte(raw[i])
 		}
-		name := strings.ToLower(m[2])
-		if !allowedTags[name] {
-			return ""
+		i++
+	}
+	for j := len(open) - 1; j >= 0; j-- {
+		b.WriteString("</" + open[j] + ">")
+	}
+	return b.String()
+}
+
+// canonicalOpenTag rebuilds an opening tag, refusing unknown classes.
+func canonicalOpenTag(name, classList string) (string, bool) {
+	classes := strings.Fields(classList)
+	for _, c := range classes {
+		if !allowedClasses[c] {
+			return "", false
 		}
-		attrs := reUnsafeAttrs.ReplaceAllString(m[3], "")
-		if m[1] == "/" {
-			return "</" + name + ">"
+	}
+	if len(classes) == 0 {
+		return "<" + name + ">", true
+	}
+	return "<" + name + ` class="` + strings.Join(classes, " ") + `">`, true
+}
+
+// closeTag writes the closing tag for name if it is open, first closing any
+// tags opened inside it, and returns the updated stack. A closing tag with no
+// matching open tag is dropped.
+func closeTag(b *strings.Builder, open []string, name string) []string {
+	for j := len(open) - 1; j >= 0; j-- {
+		if open[j] == name {
+			for k := len(open) - 1; k >= j; k-- {
+				b.WriteString("</" + open[k] + ">")
+			}
+			return open[:j]
 		}
-		return "<" + name + attrs + ">"
-	})
+	}
+	return open
 }
 
 // ---------------------------------------------------------------------------
