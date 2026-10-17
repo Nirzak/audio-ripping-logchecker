@@ -4,16 +4,20 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"html/template"
 	"io"
 	"log/slog"
+	"mime/multipart"
 	"net/http"
 	"path/filepath"
 	"regexp"
 	"strings"
 	"sync"
 	"time"
+	"unicode/utf16"
+	"unicode/utf8"
 
 	"golang.org/x/time/rate"
 )
@@ -189,7 +193,8 @@ type server struct {
 func (s *server) securityHeaders(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Security-Policy",
-			"default-src 'self'; script-src 'self'; style-src 'self' fonts.googleapis.com 'unsafe-inline'; font-src fonts.gstatic.com; frame-ancestors 'none';")
+			"default-src 'self'; script-src 'self'; style-src 'self' fonts.googleapis.com 'unsafe-inline'; font-src fonts.gstatic.com; object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'none';")
+		w.Header().Set("X-Content-Type-Options", "nosniff")
 		next.ServeHTTP(w, r)
 	})
 }
@@ -220,9 +225,9 @@ func (s *server) handleIndex(w http.ResponseWriter, r *http.Request) {
 
 func (s *server) handleUpload(w http.ResponseWriter, r *http.Request, data *pageData) {
 	ip := clientIP(r)
-	raw, safeName, errMsg := s.readUpload(w, r, ip)
+	in, errMsg := s.readLogInput(w, r, ip)
 	if errMsg != "" {
-		if strings.Contains(errMsg, "200 KB") {
+		if errMsg == errMsgTooLarge {
 			w.WriteHeader(http.StatusRequestEntityTooLarge)
 		}
 		data.Error = errMsg
@@ -230,11 +235,11 @@ func (s *server) handleUpload(w http.ResponseWriter, r *http.Request, data *page
 		return
 	}
 
-	safeLog := sanitizeForLog(safeName)
+	safeLog := sanitizeForLog(in.name)
 	s.logger.Info("checking file", "ip", ip, "file", safeLog)
 
-	rdbarr := isRdbarr(decodeToUTF8(raw))
-	res, htmlLog, err := analyze(raw, filepath.Ext(safeName), rdbarr)
+	rdbarr := isRdbarr(in.text)
+	res, htmlLog, err := analyze(in.raw, in.ext, rdbarr)
 	if err != nil {
 		s.logger.Error("analysis failed", "ip", ip, "file", safeLog, "err", err)
 		data.Error = "Failed to process the file. Please check your input and try again."
@@ -262,21 +267,21 @@ func (s *server) handleAPI(w http.ResponseWriter, r *http.Request) {
 	}
 
 	ip := clientIP(r)
-	raw, safeName, errMsg := s.readUpload(w, r, ip)
+	in, errMsg := s.readLogInput(w, r, ip)
 	if errMsg != "" {
 		code := http.StatusBadRequest
-		if strings.Contains(errMsg, "200 KB") {
+		if errMsg == errMsgTooLarge {
 			code = http.StatusRequestEntityTooLarge
 		}
 		jsonError(w, errMsg, code)
 		return
 	}
 
-	safeLog := sanitizeForLog(safeName)
+	safeLog := sanitizeForLog(in.name)
 	s.logger.Info("API: checking file", "ip", ip, "file", safeLog)
 
-	rdbarr := isRdbarr(decodeToUTF8(raw))
-	res, _, err := analyze(raw, filepath.Ext(safeName), rdbarr)
+	rdbarr := isRdbarr(in.text)
+	res, _, err := analyze(in.raw, in.ext, rdbarr)
 	if err != nil {
 		s.logger.Error("API: analysis failed", "ip", ip, "file", safeLog, "err", err)
 		jsonError(w, "Failed to process the file. Please check your input and try again.", http.StatusInternalServerError)
@@ -319,49 +324,178 @@ func (s *server) render(w http.ResponseWriter, data pageData) {
 }
 
 // ---------------------------------------------------------------------------
-// Shared upload reader
+// Shared input reader (file upload or pasted text)
 // ---------------------------------------------------------------------------
 
-// readUpload parses the multipart body, validates the file, and returns raw bytes.
-// It fixes the original bug of passing nil as the ResponseWriter to MaxBytesReader.
-func (s *server) readUpload(w http.ResponseWriter, r *http.Request, ip string) (raw []byte, safeName string, errMsg string) {
-	r.Body = http.MaxBytesReader(w, r.Body, maxUploadBytes)
-	if err := r.ParseMultipartForm(maxUploadBytes); err != nil {
-		msg := err.Error()
-		if strings.Contains(msg, "too large") || strings.Contains(msg, "request body too large") {
+const (
+	fieldFile = "logfile"
+	fieldText = "logtext"
+
+	// pastedName is the display / log-line name used for pasted text.
+	pastedName = "pasted text"
+
+	// formOverheadBytes is headroom for multipart boundaries and part headers,
+	// so a log of exactly maxUploadBytes still fits in the request body. The
+	// payload itself is checked against maxUploadBytes separately.
+	formOverheadBytes = 16 * 1024
+
+	errMsgTooLarge = "Log exceeds the maximum size of 200 KB. Please submit a smaller log."
+)
+
+// logInput is a validated log submission, from either source.
+type logInput struct {
+	raw  []byte // bytes handed to the analyzer
+	text string // raw decoded to UTF-8, for content checks
+	ext  string // file extension the analyzer's temp file gets
+	name string // display name, for server logs only
+}
+
+// readLogInput parses the request body and returns the submitted log, which
+// is either a file in the "logfile" part or text in the "logtext" field.
+// Exactly one of the two must be present. Both paths end in the same checks,
+// so pasted text is never trusted more than an uploaded file.
+//
+// The body may be multipart/form-data (the web form, curl -F) or
+// application/x-www-form-urlencoded (text only).
+func (s *server) readLogInput(w http.ResponseWriter, r *http.Request, ip string) (in logInput, errMsg string) {
+	r.Body = http.MaxBytesReader(w, r.Body, maxUploadBytes+formOverheadBytes)
+	if err := r.ParseMultipartForm(maxUploadBytes); err != nil && !errors.Is(err, http.ErrNotMultipart) {
+		var tooLarge *http.MaxBytesError
+		if errors.As(err, &tooLarge) || strings.Contains(err.Error(), "too large") {
 			s.logger.Warn("upload exceeded limit", "ip", ip)
-			return nil, "", "File size exceeds the maximum limit of 200 KB. Please upload a smaller file."
+			return in, errMsgTooLarge
 		}
-		return nil, "", "Failed to parse form."
+		return in, "Failed to parse form."
 	}
 
-	file, header, err := r.FormFile("logfile")
-	if err != nil {
-		s.logger.Info("upload with no file", "ip", ip)
-		return nil, "", "No file part. Use the file selector."
-	}
-	defer file.Close()
+	// PostForm, not FormValue: the log must come from the body, never the URL.
+	text := r.PostForm.Get(fieldText)
+	hasText := strings.TrimSpace(text) != ""
 
+	file, header, err := r.FormFile(fieldFile)
+	hasFile := err == nil
+	if hasFile {
+		defer file.Close()
+	}
+
+	switch {
+	case hasFile && hasText:
+		s.logger.Info("upload with both file and text", "ip", ip)
+		return in, "Please either upload a file or paste the log text, not both."
+	case hasFile:
+		in, errMsg = s.readLogFile(file, header, ip)
+	case hasText:
+		in, errMsg = s.readLogText(text, ip)
+	default:
+		s.logger.Info("upload with no log", "ip", ip)
+		return in, "No log provided. Upload a log file or paste the log text."
+	}
+	if errMsg != "" {
+		return logInput{}, errMsg
+	}
+
+	in.text = decodeToUTF8(in.raw)
+	if containsMarkup(in.text) {
+		s.logger.Warn("rejected log containing HTML markup", "ip", ip, "file", sanitizeForLog(in.name))
+		return logInput{}, "This log contains HTML markup, which rip logs never do. Please submit the original, unmodified log."
+	}
+	return in, ""
+}
+
+// readLogFile validates an uploaded file part and reads its bytes.
+func (s *server) readLogFile(file multipart.File, header *multipart.FileHeader, ip string) (logInput, string) {
 	if header.Filename == "" {
 		s.logger.Info("upload with empty filename", "ip", ip)
-		return nil, "", "No file selected."
+		return logInput{}, "No file selected."
 	}
 
-	safeName = filepath.Base(filepath.Clean(header.Filename))
+	safeName := filepath.Base(filepath.Clean(header.Filename))
 	if !allowedFile(safeName) {
 		s.logger.Warn("rejected disallowed file type", "ip", ip, "file", sanitizeForLog(safeName))
-		return nil, "", "File type not allowed. Only .log and .txt files are permitted."
+		return logInput{}, "File type not allowed. Only .log and .txt files are permitted."
 	}
 
 	data, err := io.ReadAll(io.LimitReader(file, maxUploadBytes+1))
 	if err != nil {
-		return nil, "", "Failed to read file."
+		return logInput{}, "Failed to read file."
 	}
 	if len(data) > maxUploadBytes {
-		return nil, "", "File size exceeds the maximum limit of 200 KB. Please upload a smaller file."
+		return logInput{}, errMsgTooLarge
 	}
 
-	return data, safeName, ""
+	return logInput{raw: data, ext: filepath.Ext(safeName), name: safeName}, ""
+}
+
+// readLogText validates pasted log text.
+func (s *server) readLogText(text, ip string) (logInput, string) {
+	if len(text) > maxUploadBytes {
+		s.logger.Warn("pasted text exceeded limit", "ip", ip)
+		return logInput{}, errMsgTooLarge
+	}
+	clean, ok := cleanPastedText(text)
+	if !ok {
+		s.logger.Warn("rejected pasted text with invalid UTF-8", "ip", ip)
+		return logInput{}, "The pasted text is not valid UTF-8."
+	}
+	return logInput{raw: nativeLogBytes(clean), ext: ".log", name: pastedName}, ""
+}
+
+// cleanPastedText validates and normalises text from the paste box.
+//
+// Browsers always submit form text as UTF-8 (the page declares that charset),
+// so invalid UTF-8 means a hand-crafted request and is refused. Characters that
+// never occur in rip logs are dropped: C0/C1 control codes other than tab, LF
+// and CR; a leading byte-order mark; and Unicode bidirectional controls, which
+// could make the rendered report read differently from what was analysed.
+func cleanPastedText(s string) (string, bool) {
+	if !utf8.ValidString(s) {
+		return "", false
+	}
+	s = strings.TrimPrefix(s, "\uFEFF")
+	return strings.Map(func(r rune) rune {
+		switch {
+		case r == '\t' || r == '\n' || r == '\r':
+			return r
+		case r < 0x20 || (r >= 0x7f && r <= 0x9f):
+			return -1
+		case isBidiControl(r):
+			return -1
+		}
+		return r
+	}, s), true
+}
+
+// nativeLogBytes encodes pasted text the way the ripper writes its log files.
+// The checksum validators read the analyzer's temp file back from disk, so it
+// must hold the same bytes the original file would:
+//   - EAC logs are UTF-16LE (the EAC checker always decodes the file as such);
+//     its checksum ignores line breaks.
+//   - XLD and whipper logs are UTF-8 with LF line breaks, and both checksums
+//     cover the line breaks, so the CRLFs a browser submits are undone.
+//
+// Anything else is passed through as UTF-8.
+func nativeLogBytes(text string) []byte {
+	switch {
+	case strings.Contains(text, "Exact Audio Copy"):
+		units := utf16.Encode([]rune(text))
+		b := make([]byte, 0, 2+2*len(units))
+		b = append(b, 0xff, 0xfe) // UTF-16 LE BOM
+		for _, u := range units {
+			b = append(b, byte(u), byte(u>>8))
+		}
+		return b
+	case strings.Contains(text, "X Lossless Decoder"), strings.Contains(text, "Log created by: whipper"):
+		return []byte(strings.ReplaceAll(text, "\r\n", "\n"))
+	}
+	return []byte(text)
+}
+
+// isBidiControl reports whether r is a Unicode bidirectional formatting
+// character (embeddings, overrides, isolates and directional marks).
+func isBidiControl(r rune) bool {
+	return (r >= 0x202a && r <= 0x202e) || // LRE, RLE, PDF, LRO, RLO
+		(r >= 0x2066 && r <= 0x2069) || // LRI, RLI, FSI, PDI
+		r == 0x200e || r == 0x200f || r == 0x061c // LRM, RLM, ALM
 }
 
 // ---------------------------------------------------------------------------
